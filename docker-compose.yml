@@ -1,0 +1,24 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "9990:9990"
+    volumes:
+      - dwt-bin:/app/bin
+    depends_on:
+      - dwt-watermarking
+
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+  dwt-watermarking:
+    build: ./analyzers/dwtsvd-watermarking
+    volumes:
+      - dwt-bin:/app/bin
+
+volumes:
+  dwt-bin:

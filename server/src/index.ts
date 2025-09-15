@@ -1,45 +1,47 @@
 import bodyParser from "body-parser";
-import { createCanvas, Image } from "canvas";
 import express from "express";
 import { Application, Request, Response, Router } from "express";
-import fs from 'fs';
+import cors from 'cors';
+import multer from 'multer';
+import { spawn, spawnSync } from "child_process";
+
+const upload = multer({ dest: "uploads/" })
 
 const app: Application = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 9990;
+const api: Router = Router();
 
-const api : Router = Router();
-
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-api.post('/watermark', (req:Request, res:Response) => {
-	const baseImage = new Image();
-	const baseImageW = req.body.basew;
-	const baseImageH = req.body.baseh;
-	const watermark = new Image();
-	const watermarkW = req.body.watermarkw;
-	const watermarkH = req.body.watermarkh;
+interface ImageFields {
+	image?: Express.Multer.File[];
+	watermark?: Express.Multer.File[];
+}
 
-	const baseImageD = createCanvas(baseImageW, baseImageH);
-	const watermarkD = createCanvas(watermarkW, watermarkH);
-	
-	baseImage.onload = () => baseImageD.getContext('2d').drawImage(baseImage, 0, 0);
-	watermark.onload = () => watermarkD.getContext('2d').drawImage(watermark, 0, 0);
+type ImageFieldRequest = Request & { files: ImageFields };
 
-	const out = fs.createWriteStream(__dirname + '/test.jpeg')
-	const stream = baseImageD.createJPEGStream();
-	stream.pipe(out);
+api.post('/watermark', upload.fields([{ name: "image" }, { name: "watermark" }]), (req: ImageFieldRequest, res: any) => {
+	const imageFile = req.files.image?.[0];
+	const watermarkFile = req.files.watermark?.[0];
+	const proc = spawn("bin/diwatermark",	[
+		`uploads/${imageFile?.filename}`,
+		`uploads/${watermarkFile?.filename}`,
+		`wmarked/${imageFile?.filename}.png`,
+		`wmarked/${imageFile?.filename}.bin`]);
 
-	const proc = spawn("bin/diwatermark", [
-    "image2.jpg",
-    `public/wm-${payload.userid}.jpg`,
-    `public/image-${payload.userid}.jpg`,
-    `public/image-${payload.userid}.bin`,
-  ]);
+	proc.on("error", (err) => {
+		res.send(err);
+	});
+
+	proc.on("exit", () => {
+		res.send('ok');
+	});
 });
 
 app.use('/api', api);
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+	console.log(`Server is running on http://localhost:${port}`);
 });

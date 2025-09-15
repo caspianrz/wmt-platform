@@ -14,11 +14,15 @@
   },
   "dependencies": {
     "body-parser": "^2.2.0",
-    "canvas": "^3.2.0",
-    "express": "^5.1.0"
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-form-data": "^3.0.1",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
