@@ -5,6 +5,7 @@ import cors from 'cors';
 import multer from 'multer';
 import { spawn } from "child_process";
 import { existsSync, mkdirSync, rmSync } from "fs";
+import { ApplyAttack } from "./attacks/attack";
 
 rmSync('uploads', {
 	force: true,
@@ -13,7 +14,7 @@ rmSync('uploads', {
 
 rmSync('wmarked', {
 	force: true,
-	recursive: true,	
+	recursive: true,
 });
 
 mkdirSync('uploads');
@@ -65,30 +66,47 @@ api.post('/watermark', upload.fields([{ name: "image" }, { name: "watermark" }])
 	});
 });
 
-api.get('/watermark', (req : Request, res:Response) => {
+api.get('/watermark', (req: Request, res: Response) => {
 	const imageFile = `wmarked/${req.query.id}.png`;
 	const binFile = `wmarked/${req.query.id}.bin`;
 	const exwmark = `wmarked/ex-${req.query.id}.png`;
-	if( existsSync(imageFile) && existsSync(binFile) ) {
+	if (existsSync(imageFile) && existsSync(binFile)) {
 		const proc = spawn("bin/diunwatermark", [
 			imageFile,
 			binFile,
 			exwmark,
 		]);
 
-		proc.on('error', (err)=> {
+		proc.on('error', (err) => {
 			res
-			.status(404)
-			.json({
-				message: err.message
-			});
+				.status(404)
+				.json({
+					message: err.message
+				});
 		});
 
-		proc.on('exit', ()=> {
+		proc.on('exit', () => {
 			res.json({
 				'url': exwmark
 			});
 		});
+	}
+});
+
+api.post('/attack', async (req: Request, res: Response) => {
+	const attackName: string = req.body.name;
+	const attackArgs: string[] = req.body.args;
+	attackArgs[0] = `uploads/${attackArgs[0]}`;
+
+	const result = await ApplyAttack({
+		name: attackName,
+		args: attackArgs,
+	});
+
+	if (result) {
+		res.send('OK');
+	} else {
+		res.send('NOK');
 	}
 });
 

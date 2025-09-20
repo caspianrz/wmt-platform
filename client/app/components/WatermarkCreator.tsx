@@ -1,32 +1,47 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { Card } from "./ui/Card";
 import WatermarkSetting from "./WatermarkSetting";
 import { Label } from "./ui/Label";
 import { Slider } from "./ui/Slider";
 import { Button } from "./ui/Button";
-import ImageUploaderToWatermark, { EnvironmentManager, type WatermarkedImage } from "~/models/ImageUploaderToWatermark";
+import ImageUploaderToWatermark, { type WatermarkedImage } from "~/models/ImageUploaderToWatermark";
 import loadImage from "./ImageProcessor";
+import axios from "axios";
+import { AttackControls } from "./AttackControls";
+import EnvironmentManager from "~/models/EnvironmentManager";
+import ImageAttackUpload from "~/models/ImageAttackUpload";
 
 interface WatermarkCreatorProps {
 	appliedImg: string | null;
 	setAppliedImg: ((v: string | null) => void);
 	watermark: string | null;
 	setWatermark: ((v: string | null) => void);
+	imageID: string | null;
+	setImageID: ((v: string | null) => void);
 }
 
 export default function WatermarkCreator(props: WatermarkCreatorProps) {
-	const [opacity, setOpacity] = useState(100);
+	const [opacity, setOpacity] = useState(10);
 	const [image, setImage] = useState<string | null>(null);
+	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [watermark, setWatermark] = useState<string | null>(null);
+	const [noiseLevel, setNoiseLevel] = useState<number>(0);
 
 	const setImageData = async (file: File) => {
 		const data = await loadImage(file);
 		setImage(data);
+		setImageFile(file);
 	};
 
 	const removeImageData = () => {
 		setImage(null);
+	}
+
+	const applyAttack = async () => {
+		if (imageFile != null) {
+			const response = await ImageAttackUpload(imageFile, "", []);
+		}
 	}
 
 	const applyWatermark = () => {
@@ -47,6 +62,7 @@ export default function WatermarkCreator(props: WatermarkCreatorProps) {
 				wmarkImageUrl.port = EnvironmentManager.Instance.SERVER_PORT;
 				props.setAppliedImg(wmarkImageUrl.href);
 				props.setWatermark(watermarkURL.href);
+				props.setImageID((resX.id || null));
 			}
 		}, null);
 	};

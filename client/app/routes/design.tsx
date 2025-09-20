@@ -7,6 +7,7 @@ import { WatermarkAnalysis } from '~/components/WatermarkAnalysis';
 export default function Design() {
 	const [appliedWM, setAppliedWM] = useState<string | null>(null);
 	const [watermark, setWatermark] = useState<string | null>(null);
+	const [imageID, setImageID] = useState<string | null>(null);
 
 	return (
 		<div className="min-h-screen bg-background dark">
@@ -16,6 +17,8 @@ export default function Design() {
 					setAppliedImg={setAppliedWM}
 					watermark={watermark}
 					setWatermark={setWatermark}
+					imageID={imageID}
+					setImageID={setImageID}
 				/>
 
 				<div className="lg:col-span-3">

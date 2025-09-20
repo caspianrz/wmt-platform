@@ -1,24 +1,10 @@
 import axios, { type AxiosResponse } from "axios";
+import EnvironmentManager from "./EnvironmentManager";
 
 interface WatermarkUploadData {
 	image: string; // dataURL of base image
 	watermark: string; // dataURL of watermark
 	alpha: number;
-}
-
-export class EnvironmentManager {
-	public readonly SERVER_PORT: string = '9990';
-	private static _instance: EnvironmentManager;
-
-	constructor() {
-		if (EnvironmentManager._instance) {
-			return;
-		}
-	}
-
-	public static get Instance() {
-		return this._instance || (this._instance = new this());
-	}
 }
 
 function dataURLtoBlob(dataURL: string) {
