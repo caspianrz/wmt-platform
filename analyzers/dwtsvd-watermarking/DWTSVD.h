@@ -29,20 +29,7 @@ public:
   }
 
   static void unrun(cv::Mat watermarked_image, WatermarkExtraData	extra,
-                    cv::Mat &watermark, cv::Mat cover_image) {
-		cv::Mat LL, LH, HL, HH;
-    cv::Mat HUw, HVw, HSw;
-		DWT::dwt2D(cover_image, LL, LH, HL, HH);
-    cv::SVD::compute(LL, HSw, HUw, HVw);
-		cv::imshow("", LL);
-		cv::waitKey(0);
-    cv::Mat LLw, LHw, HLw, HHw;
-    DWT::dwt2D(watermarked_image, LLw, LHw, HLw, HHw);
-    cv::Mat HUw_hat, HSbw_hat, HVw_hat;
-    cv::SVD::compute(LLw, HSbw_hat, HUw_hat, HVw_hat);
-
-		watermark = LL - LLw;
-
+                    cv::Mat &watermark) {
     //cv::Mat Sw_hat = (HSbw_hat - extra.HSw) / extra.alpha;
     //watermark = extra.Uw * cv::Mat::diag(Sw_hat) * extra.Vw;
   }

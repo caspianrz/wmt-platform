@@ -5,11 +5,17 @@ import WatermarkSetting from "./WatermarkSetting";
 import { Label } from "./ui/Label";
 import { Slider } from "./ui/Slider";
 import { Button } from "./ui/Button";
-import ImageUploaderToWatermark from "~/models/ImageUploaderToWatermark";
+import ImageUploaderToWatermark, { EnvironmentManager, type WatermarkedImage } from "~/models/ImageUploaderToWatermark";
 import loadImage from "./ImageProcessor";
 
+interface WatermarkCreatorProps {
+	appliedImg: string | null;
+	setAppliedImg: ((v: string | null) => void);
+	watermark: string | null;
+	setWatermark: ((v: string | null) => void);
+}
 
-export default function WatermarkCreator() {
+export default function WatermarkCreator(props: WatermarkCreatorProps) {
 	const [opacity, setOpacity] = useState(100);
 	const [image, setImage] = useState<string | null>(null);
 	const [watermark, setWatermark] = useState<string | null>(null);
@@ -32,7 +38,16 @@ export default function WatermarkCreator() {
 			watermark: watermark,
 			alpha: opacity
 		}, (res) => {
-			console.log(res.data);
+			const resX: WatermarkedImage = res as WatermarkedImage;
+			if (resX.wmimage != null && resX.watermark != null) {
+				const watermarkURL = new URL(resX.watermark, document.location.origin);
+				watermarkURL.port = EnvironmentManager.Instance.SERVER_PORT;
+
+				const wmarkImageUrl = new URL(resX.wmimage, document.location.origin);
+				wmarkImageUrl.port = EnvironmentManager.Instance.SERVER_PORT;
+				props.setAppliedImg(wmarkImageUrl.href);
+				props.setWatermark(watermarkURL.href);
+			}
 		}, null);
 	};
 

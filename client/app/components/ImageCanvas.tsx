@@ -5,12 +5,14 @@ interface ImageCanvasProps {
   imageData: string | null;
   width?: number;
   height?: number;
+	useCanvas?: boolean;
 }
 
 export function ImageCanvas({
   imageData,
-  width = 400,
-  height = 300,
+  width = 512,
+  height = 512,
+	useCanvas = true,
 }: ImageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,13 +47,17 @@ export function ImageCanvas({
 
   return (
     <Card className="p-4">
+			{useCanvas && (
       <canvas
         ref={canvasRef}
         width={width}
         height={height}
-        className="border border-border rounded bg-muted/20 w-full max-w-full"
-        style={{ maxHeight: `${height}px` }}
-      />
+        className="border border-border rounded bg-muted/20"
+        style={{ maxWidth: `${width}px`, maxHeight: `${height}px` }}
+      />)}
+			{(!useCanvas && imageData != null) && (
+				<img src={imageData} />
+			)}
     </Card>
   );
 }

@@ -18,7 +18,7 @@ services:
   dwt-watermarking:
     build: ./analyzers/dwtsvd-watermarking
     volumes:
-      - dwt-bin:/app/bin
+      - dwt-bin:/usr/local/bin
 
 volumes:
   dwt-bin:

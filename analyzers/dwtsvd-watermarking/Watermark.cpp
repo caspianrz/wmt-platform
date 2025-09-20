@@ -1,6 +1,7 @@
 #include "Watermark.h"
 #include "Model.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -9,7 +10,7 @@
 int main(int argc, char *argv[]) {
   if (argc < 4) {
     std::cerr << "Usage:\n\tdiwatermark [image] [watermark] [image_output] "
-                 "[extra_output]\n";
+                 "[extra_output] [?alpha]\n";
     return -1;
   }
 
@@ -38,7 +39,12 @@ int main(int argc, char *argv[]) {
 
   cv::Mat watermarked_image;
   WatermarkExtraData extra;
-  Watermark::watermark(i64f, w64f, WatermarkMethod::DWTHDSVD, 0.7,
+  double alpha = 0.1;
+  if (argc == 6) {
+    const char *alphaStr = argv[5];
+    alpha = atof(alphaStr) / 100.0f;
+  }
+  Watermark::watermark(i64f, w64f, WatermarkMethod::DWTHDSVD, alpha,
                        watermarked_image, extra);
 
   watermarked_image.convertTo(watermarked_image, CV_8U);

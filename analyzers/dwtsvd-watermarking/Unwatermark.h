@@ -9,10 +9,10 @@
 class Unwatermark {
 public:
   static void run(cv::Mat watermarked_image, WatermarkMethod method,
-                  WatermarkExtraData extra, cv::Mat &extracted_watermark, cv::Mat cover) {
+                  WatermarkExtraData extra, cv::Mat &extracted_watermark) {
     switch (method) {
     case WatermarkMethod::DWTSVD:
-      DWTSVD::unrun(watermarked_image, extra, extracted_watermark, cover);
+      DWTSVD::unrun(watermarked_image, extra, extracted_watermark);
       break;
     case WatermarkMethod::DWTHDSVD:
 			DWTHDSVD::unrun(watermarked_image, extra, extracted_watermark);

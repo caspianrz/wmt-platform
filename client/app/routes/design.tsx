@@ -1,13 +1,22 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/Tabs';
 import { ImageCanvas } from "~/components/ImageCanvas";
 import WatermarkCreator from "~/components/WatermarkCreator";
-import { Spinner } from '@radix-ui/themes'
+import { useState } from 'react';
+import { WatermarkAnalysis } from '~/components/WatermarkAnalysis';
 
 export default function Design() {
+	const [appliedWM, setAppliedWM] = useState<string | null>(null);
+	const [watermark, setWatermark] = useState<string | null>(null);
+
 	return (
 		<div className="min-h-screen bg-background dark">
 			<div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-				<WatermarkCreator />
+				<WatermarkCreator
+					appliedImg={appliedWM}
+					setAppliedImg={setAppliedWM}
+					watermark={watermark}
+					setWatermark={setWatermark}
+				/>
 
 				<div className="lg:col-span-3">
 					<Tabs defaultValue="images" className="w-full">
@@ -18,24 +27,23 @@ export default function Design() {
 
 						<TabsContent value="images" className="space-y-6">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<ImageCanvas imageData={null} />
-								<ImageCanvas imageData={null} />
-							</div>
-
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<ImageCanvas imageData={null} />
-								<ImageCanvas imageData={null} />
+								<ImageCanvas imageData={appliedWM} useCanvas={true} />
+								<ImageCanvas imageData={watermark} useCanvas={true} />
 							</div>
 						</TabsContent>
 
 						<TabsContent value="analysis">
-							{/* <WatermarkAnalysis
-              hasWatermark={analysisResults.hasWatermark}
-              confidence={analysisResults.confidence}
-              robustness={analysisResults.robustness}
-              attacksApplied={attacksApplied}
-              detectionResults={analysisResults.detectionResults}
-            /> */}
+							<WatermarkAnalysis
+								hasWatermark={false}
+								confidence={100}
+								robustness={100}
+								attacksApplied={[]}
+								detectionResults={{
+									textDetection: 100,
+									frequencyAnalysis: 100,
+									correlationScore: 100
+								}}
+							/>
 						</TabsContent>
 					</Tabs>
 				</div>

@@ -1,13 +1,11 @@
-FROM alpine:3
+FROM alpine:3 as builder
 
 RUN apk update && apk add g++ cmake opencv make opencv-dev pkgconfig
 
 WORKDIR /app
 
-COPY *.cpp ./
-COPY *.h ./
-COPY CMakeLists.txt .
+COPY . /app
 
-RUN mkdir build && cd build && cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" -DCMAKE_BUILD_TYPE=Release .. && make
-
-COPY build/diwatermark bin/
+RUN cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build  \
+	&& cmake --build build \
+	&& cmake --install build
