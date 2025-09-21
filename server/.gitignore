@@ -7,3 +7,5 @@
 /build/
 /uploads/
 /wmarked/
+/dist/
+.env

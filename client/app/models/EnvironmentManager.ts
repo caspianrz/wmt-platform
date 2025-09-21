@@ -11,4 +11,10 @@ export default class EnvironmentManager {
 	public static get Instance() {
 		return this._instance || (this._instance = new this());
 	}
+
+	public endpoint(url:string) : URL {
+		const ep = new URL(url, document.location.origin);
+		ep.port = this.SERVER_PORT;
+		return ep;
+	}
 }
