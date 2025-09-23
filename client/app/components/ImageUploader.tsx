@@ -30,7 +30,7 @@ export function ImageUploader() {
 
 	return (
 		<Card>
-			{!file ? (
+			{!image ? (
 				<Card>
 					<Button fullWidth sx={{ width: 512, height: 512 }} component="label">
 						<Stack className="flex items-center justify-center" spacing={1}>

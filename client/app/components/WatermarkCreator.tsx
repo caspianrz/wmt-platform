@@ -1,6 +1,110 @@
-import { Button, FormControl, Input, InputLabel, MenuItem, Select, Stack } from "@mui/material";
-import React from "react";
+import { Button, FormControl, Grid, Input, InputLabel, MenuItem, Select, Slider, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { ImageUploader } from "./ImageUploader";
+import { ImageCanvas } from "./ImageCanvas";
+import { createCanvas } from "canvas";
+
+function dataURLtoFile(dataUrl: string, filename: string): File {
+	const [header, base64] = dataUrl.split(",");
+	const mimeMatch = header.match(/:(.*?);/);
+	const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+	const binary = atob(base64);
+	const len = binary.length;
+	const u8arr = new Uint8Array(len);
+	for (let i = 0; i < len; i++) {
+		u8arr[i] = binary.charCodeAt(i);
+	}
+
+	return new File([u8arr], filename, { type: mime });
+}
+
+function BasicTextWatermark() {
+	const [file, setFile] = useState<File | undefined>(undefined);
+	const [image, setImage] = React.useState<string | null>(null);
+	const [width, setWidth] = React.useState(512);
+	const [height, setHeight] = React.useState(512);
+	const [watermarkText, setWatermarkText] = React.useState('');
+	const [fontSize, setFontSize] = React.useState(48);
+	const [background, setBackground] = React.useState('#FFFFFF');
+	const [foreground, setForeground] = React.useState('#000000');
+	const [offX, setOffX] = React.useState(0);
+	const [offY, setOffY] = React.useState(0);
+
+	useEffect(() => {
+		const canvas = createCanvas(width, height);
+		const ctx = canvas.getContext("2d");
+
+		ctx.fillStyle = background;
+		ctx.fillRect(0, 0, width, height);
+
+		ctx.font = `${fontSize}px serif`;
+
+		const textMeasures = ctx.measureText(watermarkText);
+		let textH =
+			textMeasures.fontBoundingBoxAscent + textMeasures.fontBoundingBoxDescent;
+
+		const off_x = (width * offX) / 100;
+		const off_y = (height * offY) / 100 + textH;
+
+		ctx.fillStyle = foreground;
+		ctx.fillText(watermarkText, off_x, off_y);
+		const output = canvas.toDataURL();
+		setImage(output);
+		setFile(dataURLtoFile(output, 'textwatermark.png'));
+	}, [width, height, watermarkText, offX, offY, fontSize, background, foreground]);
+
+	const handleOffXChange = (_: Event, newValue: number) => {
+		setOffX(newValue);
+	};
+
+	const handleOffYChange = (_: Event, newValue: number) => {
+		setOffY(newValue);
+	};
+
+	return (
+		<Grid container columns={2} columnSpacing={2}>
+			<Stack spacing={1} justifyContent="center">
+				<InputLabel shrink htmlFor="watermark-text">Text</InputLabel>
+				<Input value={watermarkText} type="text" id="watermark-text" onChange={(e) =>
+					setWatermarkText(e.target.value)} />
+
+				<InputLabel shrink htmlFor="watermark-fontsize">Font Size</InputLabel>
+				<Input value={fontSize} type="number" id="watermark-fontsize" onChange={(e) =>
+					setFontSize(parseInt(e.target.value))} />
+
+				<InputLabel shrink htmlFor="watermark-width">Width</InputLabel>
+				<Input value={width} type="text" id="watermark-width" onChange={(e) =>
+					setWidth(parseInt(e.target.value))} />
+
+				<InputLabel shrink htmlFor="watermark-height">Height</InputLabel>
+				<Input value={height} type="text" id="watermark-height" onChange={(e) =>
+					setHeight(parseInt(e.target.value))} />
+
+				<Stack justifyContent="center" direction="row" spacing={2}>
+					<InputLabel htmlFor="watermark-bg">Background</InputLabel>
+					<Input sx={{ width: 20 }} value={background} type="color" id="watermark-bg" onChange={(e) =>
+						setBackground(e.target.value)} />
+				</Stack>
+
+				<Stack justifyContent="center" direction="row" spacing={2}>
+					<InputLabel htmlFor="watermark-fg">Foreground</InputLabel>
+					<Input sx={{ width: 20 }} fullWidth value={foreground} type="color" id="watermark-fg" onChange={(e) =>
+						setForeground(e.target.value)} />
+				</Stack>
+
+				<InputLabel htmlFor="watermark-xoff">X Offset</InputLabel>
+				<Slider id="watermark-xoff" value={offX} min={0} max={100} onChange={handleOffXChange} />
+
+				<InputLabel htmlFor="watermark-yoff">Y Offset</InputLabel>
+				<Slider id="watermark-yoff" value={offY} min={0} max={100} onChange={handleOffYChange} />
+			</Stack>
+			<Grid>
+				<InputLabel shrink>Preview</InputLabel>
+				<ImageCanvas imageData={image} />
+			</Grid>
+		</Grid >
+	);
+}
 
 /**
  * This is the component that allows only uploading an image as watermark,
@@ -11,7 +115,12 @@ function BasicWatermarkCreator() {
 	const [filename, setFileName] = React.useState('');
 
 	return (
-		<Stack spacing={1} mt={4}>
+		<Stack
+			spacing={1}
+			mt={4}
+			alignItems="center"
+			justifyContent="center"
+		>
 			<FormControl fullWidth>
 				<InputLabel id="select-watermark-kind-label">Type</InputLabel>
 				<Select
@@ -31,16 +140,14 @@ function BasicWatermarkCreator() {
 			)}
 
 			{type == 1 && (
-				<FormControl fullWidth>
-				
-				</FormControl>
+				<BasicTextWatermark />
 			)}
 
 			<FormControl>
 				<InputLabel htmlFor="filename-input">File Name</InputLabel>
 				<Input value={filename} type="text" id="filename-input" onChange={(e) => setFileName(e.target.value)} />
 			</FormControl>
-			<Button variant="contained">Save</Button>
+			<Button sx={{ maxWidth: 300 }} variant="contained">Save</Button>
 		</Stack>
 	);
 }
