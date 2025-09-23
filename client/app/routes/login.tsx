@@ -1,25 +1,22 @@
-import { Button } from "~/components/ui/Button";
 import type { Route } from "./+types/login";
 
-import { Card } from "~/components/ui/Card";
-import { Input } from "~/components/ui/Input";
-import { Label } from "~/components/ui/Label";
+import { Box } from "@mui/material";
+
+import AuthenticationForm from "@component/AuthenticationForm";
 
 export function meta({ }: Route.MetaArgs) {
 	return [
 		{ title: "Login" },
-		{ name: "description", content: "Login Form." },
+		{ name: "description", content: "" },
 	];
 }
 
 export default function Login() {
 	return (
-		<Card>
-			<Label>Username</Label>
-			<Input type="text" />
-
-			<Label>Password</Label>
-			<Input type="password" />
-		</Card>
+		<div className="flex items-center justify-center h-screen">
+			<Box>
+				<AuthenticationForm />
+			</Box>
+		</div>
 	)
 }

@@ -1,88 +1,76 @@
-import { Upload, X } from "lucide-react";
-import { Card } from "./ui/Card";
-import { Button } from "./ui/Button";
+import { Close as X, UploadFile } from "@mui/icons-material";
+import { Box, Button, Card, Stack, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
-interface ImageUploaderProps {
-	onImageUpload: ((file: File) => void) | null;
-	uploadedImage: string | null;
-	onRemoveImage: (() => void) | null;
-	withHeader: boolean | null;
-}
+export function ImageUploader() {
+	const [file, setFile] = useState<File | undefined>(undefined);
+	const [image, setImage] = useState<string | undefined>(undefined);
 
-export function ImageUploader({
-	onImageUpload,
-	uploadedImage,
-	onRemoveImage,
-	withHeader,
-}: ImageUploaderProps) {
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (onImageUpload == null)
-			return;
-		const file = event.target.files?.[0];
-		if (file && file.type.startsWith("image/")) {
-			onImageUpload(file);
+		const f = event.target.files?.[0];
+		if (f && f.type.startsWith("image/")) {
+			setFile(f);
 		}
 	};
 
 	const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-		if (onImageUpload == null)
-			return;
-		event.preventDefault();
-		const file = event.dataTransfer.files[0];
-		if (file && file.type.startsWith("image/")) {
-			onImageUpload(file);
+		const f = event.dataTransfer.files?.[0];
+		if (f && f.type.startsWith("image/")) {
+			setFile(f);
 		}
 	};
 
-	const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-		event.preventDefault();
-	};
+	useEffect(() => {
+		if (file != undefined) {
+			setImage(URL.createObjectURL(file));
+		} else {
+			setImage(undefined);
+		}
+	}, [file]);
 
 	return (
-		<Card className={withHeader ? "p-6" : "border-none"}>
-			{withHeader ? (
-				<h3 className="mb-4">Upload Image</h3>
-			) : (
-				<span className="hidden"></span>
-			)}
-
-			{!uploadedImage ? (
-				<div
-					onDrop={handleDrop}
-					onDragOver={handleDragOver}
-					className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-				>
-					<Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-					<p className="mb-4 text-muted-foreground">
-						Drag and drop an image here, or click to select
-					</p>
-					<input
-						type="file"
-						accept="image/*"
-						onChange={handleFileChange}
-						className="hidden"
-						id="image-upload"
-					/>
-					<Button asChild variant="outline">
-						<label htmlFor="image-upload" className="cursor-pointer">
-							Choose Image
-						</label>
+		<Card>
+			{!file ? (
+				<Card>
+					<Button fullWidth sx={{ width: 512, height: 512 }} component="label">
+						<Stack className="flex items-center justify-center" spacing={1}>
+							<UploadFile fontSize="large" />
+							<Typography>Choose Image</Typography>
+						</Stack>
+						<input
+							type="file"
+							accept="image/*"
+							onChange={handleFileChange}
+							onDrop={handleDrop}
+							className="hidden"
+							id="image-upload"
+						/>
 					</Button>
-				</div>
+				</Card>
 			) : (
 				<div className="relative">
-					<img
-						src={uploadedImage}
-						alt="Uploaded"
-						className="w-full h-full object-cover rounded-lg"
+					<Box
+						component="img"
+						src={image}
+						alt="Watermark File"
+						sx={{
+							width: 512,
+							height: 512,
+							borderRadius: 2,
+							objectFit: "cover",
+						}}
 					/>
 					<Button
-						onClick={() => { if (onRemoveImage != null) onRemoveImage(); }}
-						variant="destructive"
-						size="sm"
-						className="absolute top-2 right-2"
-					>
-						<X className="w-4 h-4" />
+						color="error" variant="contained" sx={{
+							position: "absolute",
+							right: 8,
+							top: 8,
+							width: 30,
+							height: 30,
+							minWidth: 0,
+							padding: 0,
+						}} onClick={() => { setFile(undefined) }}>
+						<X fontSize="small" />
 					</Button>
 				</div>
 			)}

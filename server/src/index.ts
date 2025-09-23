@@ -10,7 +10,9 @@ import API from '@routes/api';
 const app: Application = express();
 
 // Register middle-wares.
-app.use(cors());
+app.use(cors({
+	exposedHeaders: ["Authorization"],
+}));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', API);

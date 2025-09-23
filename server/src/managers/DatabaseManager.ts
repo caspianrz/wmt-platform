@@ -1,5 +1,6 @@
 import PouchDB from 'pouchdb';
 import bcrypt from 'bcrypt';
+import { mkdirpSync } from 'fs-extra';
 
 interface UserInfo {
 	_id: string,
@@ -9,12 +10,14 @@ interface UserInfo {
 export default class DatabaseManager {
 	private saltRound = 10;
 	private static _instance: DatabaseManager;
-	private _user_db = new PouchDB('db/users');
+	private _user_db! : PouchDB.Database;
 
 	constructor() {
 		if (DatabaseManager._instance) {
 			return;
 		}
+		mkdirpSync('db');
+		this._user_db = new PouchDB('db/users');
 	}
 
 	public static get instance() {
