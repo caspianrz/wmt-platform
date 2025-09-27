@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormControl, FormGroup, Input, InputAdornment, InputLabel, Button, Stack, Divider, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import axios, { type AxiosResponse } from 'axios';
 
 export default function LoginForm() {
 	const [username, setUsername] = React.useState('');
@@ -16,6 +17,15 @@ export default function LoginForm() {
 	const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 	};
+
+	const handleSubmit = (event: any) => {
+		axios.post('/api/login', {
+			username: username, password: password
+		}).then((err: any, data: AxiosResponse) => {
+
+		});
+	}
+
 	return (
 		<FormGroup sx={{ mt: 0 }}>
 			<Stack spacing={2}>
@@ -58,6 +68,7 @@ export default function LoginForm() {
 						width: "50%",
 						alignSelf: "center",
 					}}
+					onSubmit={handleSubmit}
 				>
 					Login
 				</Button>

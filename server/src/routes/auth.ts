@@ -6,9 +6,9 @@ import { JWT_SECRET } from "~/middleware/AuthMiddleware";
 
 const router: Router = Router();
 
-const setToken = (res: Response, username: string) => {
+const setToken = (res: Response, username: string, userId: string) => {
 	const token = jwt.sign(
-		{ username: username },
+		{ userId: userId, user: username },
 		JWT_SECRET,
 		{ expiresIn: "2h" }
 	);
@@ -19,16 +19,20 @@ const loginHandler = async (req: Request, res: Response) => {
 	const { username, password } = req.body;
 	const auth = await DatabaseManager.instance.authUser(username, password);
 	if (auth) {
-		return setToken(res, username).sendStatus(200);
+		return setToken(res, auth._id, auth.userId).sendStatus(200);
 	}
 	return res.sendStatus(401);
 };
 
 const registerHandler = async (req: Request, res: Response) => {
-	const { username, password } = req.body;
-	const db_res = await DatabaseManager.instance.createUser(username, password);
-	if (db_res.ok) {
-		return setToken(res, username).sendStatus(200);
+	const {
+		username,
+		password,
+		email,
+	} = req.body;
+	const db_res = await DatabaseManager.instance.createUser(username, password, email);
+	if (db_res.record.ok) {
+		return setToken(res, db_res.record.id, db_res.userid).sendStatus(200);
 	}
 	return res.sendStatus(409);
 };

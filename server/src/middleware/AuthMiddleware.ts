@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 
 export const JWT_SECRET = process.env.JWT_SECRET || 'auth';
 
-export interface AuthRequestData {
-	user: string | undefined;
+export interface AuthRequest {
+	user: string;
+	userid: string;
 }
 
 export default function AuthMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -13,9 +14,12 @@ export default function AuthMiddleware(req: Request, res: Response, next: NextFu
 
 	if (!token) return res.sendStatus(401);
 
-	jwt.verify(token, JWT_SECRET, (err, user) => {
+	jwt.verify(token, JWT_SECRET, (err, payload) => {
 		if (err) return res.sendStatus(403);
-		(req as (Request & AuthRequestData)).user = user as string;
+		const a = (req as (Request & AuthRequest));
+		const p = payload as { user: string, userId: string };
+		a.user = p.user;
+		a.userid = p.userId;
 		next();
 	});
 }

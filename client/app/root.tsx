@@ -12,6 +12,7 @@ import "./app.css";
 
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { AuthProvider } from "./providers/AuthProvider";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -54,7 +55,9 @@ export default function App() {
 	return (
 		<ThemeProvider theme={darkTheme}>
 			<CssBaseline />
-			<Outlet />
+			<AuthProvider>
+				<Outlet />
+			</AuthProvider>
 		</ThemeProvider>
 	);
 }

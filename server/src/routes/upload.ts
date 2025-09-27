@@ -1,4 +1,4 @@
-import AuthMiddleware, { AuthRequestData } from "~/middleware/AuthMiddleware";
+import AuthMiddleware, { AuthRequest } from "~/middleware/AuthMiddleware";
 
 import { Router } from "express";
 import { Request, Response } from "express";
@@ -17,7 +17,7 @@ const uploadDir = path.join(".", "uploads");
 
 const storage = multer.diskStorage({
 	destination: uploadDir,
-	filename: (req: Request & AuthRequestData, _file, cb) => {
+	filename: (req: Request & AuthRequest, _file, cb) => {
 		const user: string = req.user!;
 		const id = uuid.v4();
 		cb(null, `${user}/${id}`);

@@ -1,9 +1,43 @@
 import { Router, Request, Response } from "express";
-import multer from "multer";
-import { spawn } from "child_process";
-import { existsSync } from "fs";
 
-const router : Router = Router();
+import path from "path";
+
+import multer from "multer";
+import uuid from "uuid";
+import AuthMiddleware, { AuthRequest } from "~/middleware/AuthMiddleware";
+import DatabaseManager from "~/managers/DatabaseManager";
+import FileRequest from "~/models/FileRequest";
+
+const router: Router = Router();
+router.use(AuthMiddleware);
+
+const uploadDir = path.join(".", "uploads");
+
+const storage = multer.diskStorage({
+	destination: uploadDir,
+	filename: (req: Request & AuthRequest, _file, cb) => {
+		const user: string = req.user!;
+		const id = uuid.v4();
+		cb(null, `${user}/watermark/${id}`);
+	},
+});
+
+const mu = multer({ storage: storage });
+
+const watermarkCreateHandler = async (req: Request, res: Response) => {
+	const authReq = req as Request & AuthRequest;
+	const fileReq = req as FileRequest;
+	if (authReq.user == undefined) {
+		return res.sendStatus(400);
+	}
+	const id = await DatabaseManager.instance.addWatermark(authReq.user, fileReq.file.path);
+	res.json({ id: id });
+}
+
+router.get('/', () => { });
+router.post('/', mu.single('file'), watermarkCreateHandler);
+
+/*
 
 interface ImageFields {
 	image?: Express.Multer.File[];
@@ -40,9 +74,6 @@ router.get('/watermark', (req: Request, res: Response) => {
 	}
 });
 
-
-const upload = multer({ dest: "uploads/" })
-
 router.post('/watermark', upload.fields([{ name: "image" }, { name: "watermark" }]), (req: ImageFieldRequest, res: any) => {
 	const imageFile = req.files.image?.[0];
 	const watermarkFile = req.files.watermark?.[0];
@@ -69,5 +100,6 @@ router.post('/watermark', upload.fields([{ name: "image" }, { name: "watermark" 
 		});
 	});
 });
+*/
 
 export default router;

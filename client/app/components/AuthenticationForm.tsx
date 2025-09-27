@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, Stack, Tab, Tabs } from "@mui/material";
+import { Box, Card, Tab, Tabs } from "@mui/material";
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
