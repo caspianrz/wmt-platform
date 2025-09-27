@@ -11,10 +11,14 @@ export interface AuthRequest {
 export default function AuthMiddleware(req: Request, res: Response, next: NextFunction) {
 	const authHeader = req.headers["authorization"];
 	const token = authHeader && authHeader.split(" ")[1];
+	console.log(req.url);
+	console.log(req.headers);
+	console.log("TOKEN " + token);
 
 	if (!token) return res.sendStatus(401);
 
 	jwt.verify(token, JWT_SECRET, (err, payload) => {
+		console.log(err);
 		if (err) return res.sendStatus(403);
 		const a = (req as (Request & AuthRequest));
 		const p = payload as { user: string, userId: string };

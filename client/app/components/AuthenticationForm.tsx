@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Card, Tab, Tabs } from "@mui/material";
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import { useAuth } from '~/providers/AuthProvider';
+import { useNavigate } from 'react-router';
 
 
 interface TabPanelProps {
@@ -27,6 +29,15 @@ function AuthTabPanel(props: TabPanelProps) {
 }
 
 export default function AuthenticationForm() {
+	const auth = useAuth();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (auth.is_valid()) {
+			navigate('/');
+		}
+	}, [auth, navigate]);
+
 	const [value, setValue] = React.useState("0");
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: string) => {

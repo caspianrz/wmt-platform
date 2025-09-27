@@ -45,20 +45,28 @@ export default class DatabaseManager {
 	}
 
 	public async createUser(user: string, password: string, email: string) {
-		const userId : string = uuid.v4();
-		const record = await this._user_db.put({
-			_id: user,
-			userId: userId,
-			email: email,
-			password: await bcrypt.hash(password, this.saltRound)
-		});
-		return { record: record, userid: userId };
+		const userId: string = uuid.v4();
+		try {
+			const record = await this._user_db.put({
+				_id: user,
+				userId: userId,
+				email: email,
+				password: await bcrypt.hash(password, this.saltRound)
+			});
+			return { record: record, userid: userId };
+		} catch {
+			return null;
+		}
 	}
 
 	public async authUser(user: string, password: string): Promise<null | UserInfo> {
-		const userinfo: UserInfo = await this._user_db.get(user);
-		if (await bcrypt.compare(userinfo.password, password)) {
-			return userinfo;
+		try {
+			const userinfo: UserInfo = await this._user_db.get(user);
+			if (await bcrypt.compare(password, userinfo.password)) {
+				return userinfo;
+			}
+		} catch (e: any) {
+			return null;
 		}
 		return null;
 	}
@@ -80,5 +88,11 @@ export default class DatabaseManager {
 			limit: limit
 		});
 		return dbq.docs as unknown as WatermarkRecord[];
+	}
+
+	public async deleteWatermark(id: string) {
+		this._watermark_db.get(id).then((doc) => {
+			return this._watermark_db.remove(doc);
+		});
 	}
 }

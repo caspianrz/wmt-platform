@@ -5,4 +5,5 @@ export default [
 	route("/login", "routes/login.tsx"),
 	route("/watermark", "routes/watermark.tsx"),
 	route("/assets", "routes/assets.tsx"),
+	route("/watermarks", "routes/watermarks.tsx"),
 ] satisfies RouteConfig;

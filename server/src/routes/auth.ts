@@ -18,9 +18,10 @@ const setToken = (res: Response, username: string, userId: string) => {
 const loginHandler = async (req: Request, res: Response) => {
 	const { username, password } = req.body;
 	const auth = await DatabaseManager.instance.authUser(username, password);
-	if (auth) {
+	if (auth != null) {
 		return setToken(res, auth._id, auth.userId).sendStatus(200);
 	}
+	console.log("Sending status 401");
 	return res.sendStatus(401);
 };
 
@@ -31,7 +32,7 @@ const registerHandler = async (req: Request, res: Response) => {
 		email,
 	} = req.body;
 	const db_res = await DatabaseManager.instance.createUser(username, password, email);
-	if (db_res.record.ok) {
+	if (db_res && db_res.record.ok) {
 		return setToken(res, db_res.record.id, db_res.userid).sendStatus(200);
 	}
 	return res.sendStatus(409);

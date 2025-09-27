@@ -1,8 +1,12 @@
 import { Button, FormControl, Grid, Input, InputLabel, MenuItem, Select, Slider, Stack } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, type FormEvent } from "react";
 import { ImageUploader } from "./ImageUploader";
 import { ImageCanvas } from "./ImageCanvas";
 import { createCanvas } from "canvas";
+import EnvironmentManager from "~/models/EnvironmentManager";
+import axios from "axios";
+import type OutputFile from "~/models/OutputFile";
+import { useAuth } from "~/providers/AuthProvider";
 
 function dataURLtoFile(dataUrl: string, filename: string): File {
 	const [header, base64] = dataUrl.split(",");
@@ -18,8 +22,7 @@ function dataURLtoFile(dataUrl: string, filename: string): File {
 	return new File([u8arr], filename, { type: mime });
 }
 
-function BasicTextWatermark() {
-	const [file, setFile] = useState<File | undefined>(undefined);
+function BasicTextWatermark(props: OutputFile) {
 	const [image, setImage] = React.useState<string | null>(null);
 	const [width, setWidth] = React.useState(512);
 	const [height, setHeight] = React.useState(512);
@@ -50,7 +53,7 @@ function BasicTextWatermark() {
 		ctx.fillText(watermarkText, off_x, off_y);
 		const output = canvas.toDataURL();
 		setImage(output);
-		setFile(dataURLtoFile(output, 'textwatermark.png'));
+		props.setFile!(dataURLtoFile(output, 'textwatermark.png'));
 	}, [width, height, watermarkText, offX, offY, fontSize, background, foreground]);
 
 	const handleOffXChange = (_: Event, newValue: number) => {
@@ -113,6 +116,22 @@ function BasicTextWatermark() {
 function BasicWatermarkCreator() {
 	const [type, setType] = React.useState(0);
 	const [filename, setFileName] = React.useState('');
+	const [file, setFile] = React.useState<File | undefined>(undefined);
+	const auth = useAuth();
+
+	const handleUploadWatermark = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const endpoint = EnvironmentManager.Instance.endpoint('/api/watermark');
+		const formData = new FormData();
+		formData.append('file', file!, file?.name);
+		axios.post(endpoint.href, formData, {
+			headers: {
+				"Authorization": auth.token!,
+			}
+		}).then((response) => {
+			console.log(response);
+		});
+	};
 
 	return (
 		<Stack
@@ -120,6 +139,8 @@ function BasicWatermarkCreator() {
 			mt={4}
 			alignItems="center"
 			justifyContent="center"
+			component={"form"}
+			onSubmit={(e) => handleUploadWatermark(e)}
 		>
 			<FormControl fullWidth>
 				<InputLabel id="select-watermark-kind-label">Type</InputLabel>
@@ -136,18 +157,13 @@ function BasicWatermarkCreator() {
 			</FormControl>
 
 			{type == 0 && (
-				<ImageUploader />
+				<ImageUploader file={file} setFile={setFile} />
 			)}
 
 			{type == 1 && (
-				<BasicTextWatermark />
+				<BasicTextWatermark file={file} setFile={setFile} />
 			)}
-
-			<FormControl>
-				<InputLabel htmlFor="filename-input">File Name</InputLabel>
-				<Input value={filename} type="text" id="filename-input" onChange={(e) => setFileName(e.target.value)} />
-			</FormControl>
-			<Button sx={{ maxWidth: 300 }} variant="contained">Save</Button>
+			<Button sx={{ maxWidth: 300 }} variant="contained" type="submit">Save</Button>
 		</Stack>
 	);
 }

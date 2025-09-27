@@ -1,6 +1,5 @@
 import type { Route } from "./+types/assets";
 
-import React from "react";
 import {
   Container,
   Grid,

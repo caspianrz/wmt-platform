@@ -1,42 +1,76 @@
-import React from 'react';
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import { useNavigate } from 'react-router';
 
 interface AuthContextType {
 	uid: string | null;
 	user: string | null;
 	token: string | null;
-	login: (uid: string, username: string, token: string) => void;
+	login: (token: string) => void;
 	logout: () => void;
+	is_valid: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-	const [uid, setUid] = useState<string|null>(null);
-	const [user, setUser] = useState<string|null>(null);
-	const [token, setToken] = useState<string|null>(null);
-
-	const login = ( uid: string, username : string, token: string) => {
-		setUid(uid);
-		setUser(username);
-		setToken(token);
-		localStorage.setItem('ttt', token);
+	const initialToken = () => {
+		if (typeof window !== "undefined") {
+			return localStorage.getItem("ttt");
+		}
+		return null;
 	};
 
-	const logout = ()=> {
+	const [uid, setUid] = useState<string | null>(null);
+	const [user, setUser] = useState<string | null>(null);
+	const [token, setToken] = useState<string | null>(initialToken);
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (token) {
+			const decoded_token = jwtDecode<{ userId: string, user: string }>(token);
+			setUid(decoded_token.userId);
+			setUser(decoded_token.user);
+		} else {
+			navigate('/login');
+		}
+	}, [token]);
+
+	const login = (t: string) => {
+		setToken(t);
+		localStorage.setItem('ttt', t);
+	};
+
+	const logout = () => {
 		setUid(null)
 		setUser(null)
 		setToken(null)
 		localStorage.removeItem('ttt');
 	}
 
+	const is_valid = () => {
+		if (!token) {
+			return false;
+		}
+		const exp = jwtDecode<JwtPayload>(token!).exp! * 1000;
+		if (exp == undefined || Date.now() >= exp) {
+			localStorage.removeItem('ttt');
+			return false;
+		}
+		return true;
+	}
+
 	return (
-		<AuthContext.Provider value={{ uid, user, token, login, logout }}>
+		<AuthContext.Provider value={{ uid, user, token, login, logout, is_valid }}>
 			{children}
 		</AuthContext.Provider>
 	);
 }
 
-export const useAuth = ()=> {
-	return useContext(AuthContext);
+export const useAuth = () => {
+	const context = useContext(AuthContext);
+	if (!context) {
+		throw new Error("useAuth must be used within an AuthProvider.");
+	}
+	return context;
 };

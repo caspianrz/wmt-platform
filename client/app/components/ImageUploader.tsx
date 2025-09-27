@@ -1,32 +1,32 @@
 import { Close as X, UploadFile } from "@mui/icons-material";
 import { Box, Button, Card, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import type OutputFile from "~/models/OutputFile";
 
-export function ImageUploader() {
-	const [file, setFile] = useState<File | undefined>(undefined);
+export function ImageUploader(props: OutputFile) {
 	const [image, setImage] = useState<string | undefined>(undefined);
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const f = event.target.files?.[0];
 		if (f && f.type.startsWith("image/")) {
-			setFile(f);
+			props.setFile!(f);
 		}
 	};
 
 	const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
 		const f = event.dataTransfer.files?.[0];
 		if (f && f.type.startsWith("image/")) {
-			setFile(f);
+			props.setFile!(f);
 		}
 	};
 
 	useEffect(() => {
-		if (file != undefined) {
-			setImage(URL.createObjectURL(file));
+		if (props.file != undefined) {
+			setImage(URL.createObjectURL(props.file));
 		} else {
 			setImage(undefined);
 		}
-	}, [file]);
+	}, [props.file]);
 
 	return (
 		<Card>
@@ -69,7 +69,7 @@ export function ImageUploader() {
 							height: 30,
 							minWidth: 0,
 							padding: 0,
-						}} onClick={() => { setFile(undefined) }}>
+						}} onClick={() => { props.setFile!(undefined) }}>
 						<X fontSize="small" />
 					</Button>
 				</div>
