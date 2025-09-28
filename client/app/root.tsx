@@ -9,7 +9,6 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { AuthProvider } from "~/providers/AuthProvider";

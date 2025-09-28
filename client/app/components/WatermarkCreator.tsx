@@ -7,6 +7,7 @@ import EnvironmentManager from "~/models/EnvironmentManager";
 import axios from "axios";
 import type OutputFile from "~/models/OutputFile";
 import { useAuth } from "~/providers/AuthProvider";
+import { useNavigate, useSearchParams } from "react-router";
 
 function dataURLtoFile(dataUrl: string, filename: string): File {
 	const [header, base64] = dataUrl.split(",");
@@ -118,6 +119,9 @@ function BasicWatermarkCreator() {
 	const [filename, setFileName] = React.useState('');
 	const [file, setFile] = React.useState<File | undefined>(undefined);
 	const auth = useAuth();
+	const [searchParams] = useSearchParams();
+	const nav = useNavigate();
+
 
 	const handleUploadWatermark = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -129,7 +133,10 @@ function BasicWatermarkCreator() {
 				"Authorization": auth.token!,
 			}
 		}).then((response) => {
-			console.log(response);
+			const redirect = searchParams.get("redirect");
+			if (response.status == 200 && redirect != undefined) {
+				nav(redirect);
+			}
 		});
 	};
 

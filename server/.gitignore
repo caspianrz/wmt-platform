@@ -1,5 +1,6 @@
 .DS_Store
 /bin
+/etc
 /node_modules/
 
 # React Router

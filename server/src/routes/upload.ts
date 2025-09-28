@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 
 import multer from "multer";
 import path from "path";
-import fs, { mkdirpSync } from "fs-extra";
+import fs, { mkdirpSync, removeSync } from "fs-extra";
 import uuid from 'uuid';
 import { existsSync } from "fs";
 
@@ -41,12 +41,16 @@ const fileSendHandler = async (req: Request, res: Response) => {
 			.json({ error: "No file uploaded." });
 	}
 
+	const filename = freq.file.filename;
+	const fsep = filename.split("/");
+
+	// TODO: here~!!!
 	return res
 		.status(200)
 		.json({
-			id: freq.file.filename,
+			id: fsep[fsep.length - 1],
+			url: freq.file.path,
 			message: "File uploaded successfully",
-			path: freq.file.path,
 		});
 };
 
@@ -83,14 +87,21 @@ const fileGetHandler = async (req: Request, res: Response) => {
 
 const fileDeleteHandler = async (req: Request, res: Response) => {
 	const id = req.params['id'] || uuid.NIL;
-	const filePath = path.join(uploadDir, id);
-	if (existsSync(filePath))
+	const req2 = req as (Request & AuthRequest);
+	const user: string = req2.user!;
+	const filePath = path.join(uploadDir, `${user}/assets/${id}`);
+	if (existsSync(filePath)) {
+		removeSync(filePath);
 		return res.status(200).json({ message: "Successfully deleted file." });
+	}
 	return res.status(404).json({ message: "Not found" });
 };
 
 const fileListHandler = async (req: Request, res: Response) => {
-
+	const req2 = req as (Request & AuthRequest);
+	const user: string = req2.user!;
+	const files = fs.readdirSync(`${uploadDir}/${user}/assets/`);
+	return res.json(files.map((f) => { return { id: f, url: `${uploadDir}/${user}/assets/${f}` }; }));
 };
 
 // CRUD

@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, type ReactNode, useEffect, useCallback } from 'react';
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { useNavigate } from 'react-router';
 
@@ -25,6 +25,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<string | null>(null);
 	const [token, setToken] = useState<string | null>(initialToken);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!is_valid()) {
+			logout();
+			navigate('/login');
+		}
+	}, []);
 
 	useEffect(() => {
 		if (token) {
@@ -54,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 		const exp = jwtDecode<JwtPayload>(token!).exp! * 1000;
 		if (exp == undefined || Date.now() >= exp) {
-			localStorage.removeItem('ttt');
+			console.log(Date.now() >= exp);
 			return false;
 		}
 		return true;

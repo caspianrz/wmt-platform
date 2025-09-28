@@ -6,4 +6,5 @@ export default [
 	route("/watermark", "routes/watermark.tsx"),
 	route("/assets", "routes/assets.tsx"),
 	route("/watermarks", "routes/watermarks.tsx"),
+	route("/watermarking/:uuid", "routes/watermarking.tsx"),
 ] satisfies RouteConfig;

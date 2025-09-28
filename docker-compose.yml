@@ -5,6 +5,7 @@ services:
       - "9990:9990"
     volumes:
       - dwt-bin:/app/bin
+      - dwt-etc:/app/etc
     depends_on:
       - dwt-watermarking
 
@@ -19,6 +20,7 @@ services:
     build: ./analyzers/dwtsvd-watermarking
     volumes:
       - dwt-bin:/usr/local/bin
+      - dwt-etc:/usr/local/etc
 
 volumes:
   dwt-bin:

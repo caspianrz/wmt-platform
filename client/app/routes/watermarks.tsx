@@ -42,8 +42,7 @@ export default function WatermarksPage() {
 			data: {
 				id: id
 			},
-		}).then((res) => {
-			console.log(res);
+		}).then((_) => {
 			setWatermarks(watermarks.filter((wm) => {
 				return wm.id != id;
 			}));

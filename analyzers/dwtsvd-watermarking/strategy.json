@@ -1,0 +1,42 @@
+{
+	"name": "DWT HD SVD",
+	"kind": ["cmd-img-on-img"],
+	"watermarking": {
+		"argc": 4,
+		"input": {
+			"kind": "path",
+			"pos": [0]
+		},
+		"watermark": {
+			"kind": "path",
+			"pos": [1]
+		},
+		"output": {
+			"kind": "path",
+			"pos": [2, 3]
+		},
+		"extra": [ {
+			"kind": "num",
+			"name": "alpha",
+			"value_range": {
+				"min": 0,
+				"max": 100
+			}
+		} ]
+	},
+	"unwatermarking": {
+		"argc": 3,
+		"image": {
+			"kind": "path",
+			"pos": [0]
+		},
+		"output": {
+			"kind": "path",
+			"pos": [2]
+		},
+		"extra": [ {
+			"kind": "path",
+			"pos": [1]
+		} ]
+	}
+}

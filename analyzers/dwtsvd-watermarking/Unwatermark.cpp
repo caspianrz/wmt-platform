@@ -6,7 +6,7 @@
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     std::cerr
-        << "Usage:\n\tdiunwatermark [image] [extra] [...output]\n";
+        << "Usage:\n\tdiunwatermark [image] [extra] [output]\n";
     return -1;
   }
   cv::Mat img_color = cv::imread(argv[1], cv::IMREAD_COLOR);
