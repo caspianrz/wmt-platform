@@ -21,7 +21,6 @@ const loginHandler = async (req: Request, res: Response) => {
 	if (auth != null) {
 		return setToken(res, auth._id, auth.userId).sendStatus(200);
 	}
-	console.log("Sending status 401");
 	return res.sendStatus(401);
 };
 

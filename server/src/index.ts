@@ -9,10 +9,9 @@ import API from '@routes/api';
 
 const app: Application = express();
 const corsOptions = {
-	origin: 'http://localhost:5173', // Replace with your client's origin
+	exposedHeaders: ['Authorization'],
 	methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
 	allowedHeaders: ['Authorization', 'Content-Type'], // Allowed headers
-	credentials: true // Allow sending cookies/authorization headers
 };
 
 

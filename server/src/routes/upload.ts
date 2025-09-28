@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 
 import multer from "multer";
 import path from "path";
-import fs from "fs-extra";
+import fs, { mkdirpSync } from "fs-extra";
 import uuid from 'uuid';
 import { existsSync } from "fs";
 
@@ -15,12 +15,14 @@ router.use(AuthMiddleware);
 
 const uploadDir = path.join(".", "uploads");
 
+// Unify this with uploads
 const storage = multer.diskStorage({
 	destination: uploadDir,
 	filename: (req: Request & AuthRequest, _file, cb) => {
 		const user: string = req.user!;
 		const id = uuid.v4();
-		cb(null, `${user}/${id}`);
+		mkdirpSync(`${uploadDir}/${user}/assets/`);
+		cb(null, `${user}/assets/${id}`);
 	},
 });
 
