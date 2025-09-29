@@ -16,8 +16,11 @@ import {
 	DialogTitle,
 	ImageList,
 	ImageListItem,
+	Skeleton,
 } from "@mui/material";
 import axios from "axios";
+
+import { sha512 } from 'js-sha512';
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -34,6 +37,46 @@ export function meta({ }: Route.MetaArgs) {
 
 interface Watermark { id: string; url: string };
 
+interface StrategyDataExtras {
+	kind: string,
+	pos: number[],
+	name?: string,
+	value_range?: { min: number, max: number },
+}
+
+interface StrategyData {
+	name: string,
+	kind: string[],
+	watermarking: {
+		argc: number,
+		input: {
+			kind: string,
+			pos: number[],
+		},
+		watermark: {
+			kind: string,
+			pos: number[],
+		},
+		output: {
+			kind: string,
+			pos: number[],
+		},
+		extra: StrategyDataExtras[],
+	},
+	unwatermarking: {
+		argc: 3,
+		image: {
+			kind: string,
+			pos: number[],
+		},
+		output: {
+			kind: string,
+			pos: number[],
+		},
+		extra: StrategyDataExtras[],
+	}
+}
+
 function WatermarkList({ watermarks, onSelect }: {
 	watermarks: Watermark[];
 	onSelect: (id: string) => void;
@@ -44,14 +87,13 @@ function WatermarkList({ watermarks, onSelect }: {
 	return (
 		<Box
 			sx={{
-				display: "flex",
-				flexDirection: "column",
 				overflowY: "auto",
 				border: "1px solid #ccc",
 				borderRadius: 2,
 				p: 1,
 				scrollbarColor: "#555 #1e1e2e",
 				scrollbarWidth: "thin",
+
 			}}
 		>
 			{watermarks.length > 0 && (<Box>
@@ -59,7 +101,7 @@ function WatermarkList({ watermarks, onSelect }: {
 					Select a Watermark
 				</Typography>
 
-				<ImageList variant="masonry" gap={1}>
+				<ImageList variant="masonry" sx={{ display: "flex", flexWrap: "wrap", height: "80vh", overflowY: "scroll" }}>
 					{watermarks.map((wm) => (
 						<ImageListItem
 							key={wm.id}
@@ -72,7 +114,7 @@ function WatermarkList({ watermarks, onSelect }: {
 								border: selected === wm.id ? "2px solid #1976d2" : "2px solid transparent",
 								borderRadius: 1,
 								transition: "border 0.2s",
-								width: 256,
+								maxWidth: 512,
 							}}
 						>
 							<img
@@ -93,6 +135,8 @@ function WatermarkList({ watermarks, onSelect }: {
 
 export default function WatermarkingPage() {
 	const [selectedImage, setSelectedImage] = useState('');
+	const [strategies, setStrategies] = useState<string[]>([]);
+	const [strategyData, setStrategyData] = useState<Map<string, StrategyData>>(new Map());
 
 	// Placeholder watermarks
 	const [watermarks, setWatermarks] = useState<Watermark[]>([]);
@@ -127,27 +171,86 @@ export default function WatermarkingPage() {
 		});
 	}
 
+	const populateStrategies = () => {
+		const endpoint = EnvironmentManager.Instance.endpoint('/api/strategy');
+
+		axios.get(endpoint.href, {
+			headers: {
+				Authorization: auth.token,
+			},
+		}).then((response) => {
+			if (response.status == 200) {
+				setStrategies(response.data);
+				setStrategyData(new Map());
+				response.data.forEach((strategy: string) => {
+					axios.get(EnvironmentManager.Instance.endpoint(`/api/strategy/${strategy}`).href, {
+						headers: {
+							Authorization: auth.token,
+						},
+					}).then((response) => {
+						console.log(response);
+						if (response.status == 200) {
+							setStrategyData(strategyData.set(strategy, response.data));
+						}
+					});
+				});
+			}
+		});
+	}
+
 	useEffect(() => {
 		populateWatermarks();
+		populateStrategies();
+	}, []);
+
+	useEffect(() => {
 		setSelectedImage(EnvironmentManager.Instance.endpoint(`/api/uploads/${auth.user}/assets/${uuid}`).href);
 	});
 
-	// Placeholder strategies
-	const strategies = ["Blind DCT", "LSB", "Hybrid", "Wavelet"];
+	const [selectedStrategy, setSelectedStrategy] = useState<null | string>(null);
+	const [watermarkedImageReady, setWatermarkedImageReady] = useState(false);
+
+	const queueImageForWatermarking = () => {
+		const sData = strategyData.get(selectedStrategy!);
+		if (sData == null) {
+			return;
+		}
+
+		let request = {
+			strategy: selectedStrategy,
+			image: uuid,
+			watermark: selectedWatermark.id,
+		};
+
+		if (sData.watermarking.input.kind == 'path') {
+			request.image = uuid;
+		}
+
+		if (sData.watermarking.watermark.kind == 'path') {
+			request.watermark = selectedWatermark.id;
+		}
+
+		const endpoint = EnvironmentManager.Instance.endpoint(`/api/apply`);
+
+		axios.post(endpoint.href, {
+			data: request,
+			sha512: sha512(JSON.stringify(request))
+		}, {
+			headers: {
+				Authorization: auth.token
+			}
+		});
+	}
 
 	return (
-		<Box sx={{
-			height: "100vh",      // full viewport height
-			display: "flex",
-			flexDirection: "column",
-		}}>
+		<Box>
 			<Topbar title="Watermarking" />
-			<Grid container spacing={2} p={2} height="100%">
+			<Grid container spacing={2}>
 				<Grid sx={{
-					flex: 1,
 					border: "1px solid #ccc",
 					borderRadius: 2,
 					p: 2,
+					m: 1,
 				}}>
 					<Typography variant="h6" gutterBottom>
 						Selected Image
@@ -162,7 +265,7 @@ export default function WatermarkingPage() {
 					</Card>
 				</Grid>
 
-				<Grid sx={{ display: "flex", flex: 4 }} >
+				<Grid sx={{ flex: 4, m: 1 }} >
 					<WatermarkList watermarks={watermarks} onSelect={(id) => selectWatermark(id)} />
 				</Grid>
 
@@ -172,15 +275,16 @@ export default function WatermarkingPage() {
 					border: "1px solid #ccc",
 					borderRadius: 2,
 					p: 2,
+					m: 1,
 				}}>
 					<Typography variant="h6" gutterBottom>
 						Watermarking Strategy
 					</Typography>
 					<List>
-						{strategies.map((s) => (
+						{strategies.map((s: string) => (
 							<ListItem key={s} disablePadding>
-								<ListItemButton>
-									<ListItemText primary={s} />
+								<ListItemButton onClick={() => setSelectedStrategy(s)} selected={selectedStrategy == s}>
+									<ListItemText primary={strategyData.get(s)?.name} />
 								</ListItemButton>
 							</ListItem>
 						))}
@@ -188,7 +292,10 @@ export default function WatermarkingPage() {
 					<Button
 						variant="contained"
 						fullWidth
-						onClick={() => setOpen(true)}
+						onClick={() => {
+							setOpen(true);
+							queueImageForWatermarking();
+						}}
 					>
 						Apply Watermark
 					</Button>
@@ -200,11 +307,18 @@ export default function WatermarkingPage() {
 				<DialogTitle>Watermarked Image</DialogTitle>
 				<DialogContent>
 					<Card>
-						<CardMedia
-							component="img"
-							image="https://via.placeholder.com/400?text=Watermarked+Image"
-							alt="Watermarked result"
-						/>
+						<Box display="flex" justifyContent="center">
+							{!watermarkedImageReady && (
+								<Skeleton variant="rectangular" width={512} height={512} />
+							)}
+							{watermarkedImageReady && (
+								<CardMedia
+									component="img"
+									image="https://via.placeholder.com/400?text=Watermarked+Image"
+									alt="Watermarked result"
+								/>
+							)}
+						</Box>
 					</Card>
 					<Box mt={2} display="flex" gap={2}>
 						<Button variant="outlined" onClick={() => setOpen(false)}>

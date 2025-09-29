@@ -6,6 +6,7 @@ import Upload from "@routes/upload";
 import Auth from "@routes/auth";
 import Uploads from "@routes/uploads";
 import Strategy from "@routes/strategy";
+import Apply from "@routes/apply";
 
 const router: Router = Router();
 
@@ -15,5 +16,6 @@ router.use('/upload', Upload);
 router.use('/auth', Auth);
 router.use('/uploads', Uploads);
 router.use('/strategy', Strategy);
+router.use('/apply', Apply);
 
 export default router;

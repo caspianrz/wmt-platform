@@ -17,6 +17,7 @@
 		},
 		"extra": [ {
 			"kind": "num",
+			"pos": [4],
 			"name": "alpha",
 			"value_range": {
 				"min": 0,
