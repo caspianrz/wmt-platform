@@ -239,7 +239,9 @@ export default function WatermarkingPage() {
 			headers: {
 				Authorization: auth.token
 			}
-		});
+		}).then((res)=> {
+			console.log(res);
+		});;
 	}
 
 	return (

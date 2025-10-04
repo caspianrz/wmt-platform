@@ -10,16 +10,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(diwatermark Watermark.cpp DWT.cpp)
-target_link_libraries(diwatermark ${OpenCV_LIBS})
-add_executable(diunwatermark Unwatermark.cpp DWT.cpp)
-target_link_libraries(diunwatermark ${OpenCV_LIBS})
+add_executable(dwthdsvdw Watermark.cpp DWT.cpp)
+target_link_libraries(dwthdsvdw ${OpenCV_LIBS})
+add_executable(dwthdsvduw Unwatermark.cpp DWT.cpp)
+target_link_libraries(dwthdsvduw ${OpenCV_LIBS})
 
-# Install diwatermark to bin
-install(TARGETS diwatermark RUNTIME DESTINATION bin)
+# Install Watermark to bin
+install(TARGETS dwthdsvdw RUNTIME DESTINATION bin)
 
-# Install diunwatermark to bin
-install(TARGETS diunwatermark RUNTIME DESTINATION bin)
+# Install Unwatermark to bin
+install(TARGETS dwthdsvduw RUNTIME DESTINATION bin)
 
 install(
   FILES strategy.json
