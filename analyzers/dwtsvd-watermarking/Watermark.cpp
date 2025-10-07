@@ -54,7 +54,12 @@ int main(int argc, char *argv[]) {
   cv::merge(ycrcb_channels, ycrcb_image); // CV_8UC3 or CV_64FC3
   cv::Mat bgr_image;
   cv::cvtColor(ycrcb_image, bgr_image, cv::COLOR_YCrCb2BGR);
-  cv::imwrite(argv[3], bgr_image, {});
+
+  std::vector<uchar> buf;
+  cv::imencode(".jpg", bgr_image, buf); // force jpeg encoding
+  std::ofstream out(argv[3], std::ios::binary);
+  out.write(reinterpret_cast<const char *>(buf.data()), buf.size());
+  out.close();
 
   std::ofstream fs;
   fs.open(argv[4], std::fstream::binary | std::fstream::out);

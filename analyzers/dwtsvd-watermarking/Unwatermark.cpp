@@ -5,8 +5,7 @@
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    std::cerr
-        << "Usage:\n\tdiunwatermark [image] [extra] [output]\n";
+    std::cerr << "Usage:\n\tdiunwatermark [image] [extra] [output]\n";
     return -1;
   }
   cv::Mat img_color = cv::imread(argv[1], cv::IMREAD_COLOR);
@@ -38,7 +37,11 @@ int main(int argc, char *argv[]) {
   Unwatermark::run(i64f, WatermarkMethod::DWTHDSVD, data, extracted_watermark);
 
   extracted_watermark.convertTo(extracted_watermark, CV_8U);
-  cv::imwrite(argv[3], extracted_watermark);
+  std::vector<uchar> buf;
+  cv::imencode(".jpg", extracted_watermark, buf); // force jpeg encoding
+  std::ofstream out(argv[3], std::ios::binary);
+  out.write(reinterpret_cast<const char *>(buf.data()), buf.size());
+  out.close();
 
   return 0;
 }

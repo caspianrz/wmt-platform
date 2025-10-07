@@ -1,10 +1,11 @@
 import { Router, Request, Response } from "express";
-import { mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { mkdirpSync, readdirSync, readJsonSync, readSync } from "fs-extra";
 import path from "path";
-import { AuthRequest } from "~/middleware/AuthMiddleware";
+import AuthMiddleware, { AuthRequest } from "~/middleware/AuthMiddleware";
 import uuid from "uuid";
 import { exec } from "child_process";
+import DatabaseManager from "~/managers/DatabaseManager";
 
 interface StrategyDataExtras {
 	kind: string,
@@ -58,6 +59,7 @@ const strategiesData: Map<string, StrategyData> = new Map();
 })();
 
 const router: Router = Router();
+router.use(AuthMiddleware);
 
 const currentQueue: string[] = [];
 
@@ -70,17 +72,24 @@ interface WatermarkingRequest {
 	sha512: string,
 }
 
-const applyWatermarkHandler = (req: Request, res: Response) => {
-	const aReq = req as (Request & AuthRequest);
+const applyWatermarkHandler = async (req: Request, res: Response) => {
 	const wmData: WatermarkingRequest = req.body as WatermarkingRequest;
 
-	const imagePath = path.join(uploadDir, `/${aReq.user}/assets/${wmData.data.image}`);
-	const watermarkPath = path.join(uploadDir, `/${aReq.user}/watermark/${wmData.data.watermark}`);
-	const outputDir = path.join(uploadDir, `/${aReq.user}/watermarked/raw`);
-	mkdirpSync(outputDir);
-	const strategyData = strategiesData.get(wmData.data.strategy);
+	const aReq: AuthRequest & Request = req as Request & AuthRequest;
 
-	mkdirSync(outputDir);
+	if (aReq.user == undefined) {
+		return res.sendStatus(401);
+	}
+
+	const imagePath = path.join(uploadDir, `/${aReq.user}/assets/${wmData.data.image}`);
+	const wmRecord = await DatabaseManager.instance.getWatermark(wmData.data.watermark);
+	const watermarkPath = wmRecord.path;
+	const outputuuid = uuid.v4();
+	const outputDir = path.join(uploadDir, `/${aReq.user}/watermarked/${outputuuid}`);
+	if (!existsSync(outputDir)) {
+		mkdirpSync(outputDir);
+	}
+	const strategyData = strategiesData.get(wmData.data.strategy);
 
 	const inputs = [imagePath];
 	const watermarks = [watermarkPath];
@@ -106,19 +115,22 @@ const applyWatermarkHandler = (req: Request, res: Response) => {
 		args[pos] = watermarks[i]!;
 	});
 
-	const outputuuid = uuid.v4();
 	strategyData!.watermarking.output.pos.forEach((pos, i) => {
-		const oput = path.join(outputDir, `${outputuuid}-${i}`);
+		const oput = path.join(outputDir, `raw-${i}`);
 		createdPaths.push(oput);
 		args[pos] = oput;
 	});
 
 	switch (wmData.data.strategy) {
 		case 'dwthdsvd':
-			const proc = exec(`./bin/dwtsvdw ${args.join(' ')}`);
+			const proc = exec(`./bin/dwthdsvdw ${args.join(' ')}`);
+			proc.on('error', (err) => {
+				console.log(err);
+			});
 			proc.on('exit', (code) => {
 				if (code == 0) {
-					res.json({
+					return res.json({
+						id: outputuuid,
 						outputs: createdPaths,
 					});
 				}
@@ -127,8 +139,6 @@ const applyWatermarkHandler = (req: Request, res: Response) => {
 		default:
 			return res.status(400).json({ message: `${wmData.data.strategy} strategy not found.` });
 	}
-
-	res.json(wmData);
 };
 
 router.post('/', applyWatermarkHandler);

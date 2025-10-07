@@ -79,6 +79,11 @@ export default class DatabaseManager {
 		return dbq.id;
 	}
 
+	public async getWatermark(id: string): Promise<WatermarkRecord> {
+		const dbq: PouchDB.Core.IdMeta & PouchDB.Core.GetMeta & WatermarkRecord = await this._watermark_db.get(id);
+		return dbq;
+	}
+
 	public async getUserWatermarks(user: string, limit: number = 10): Promise<WatermarkRecord[]> {
 		const dbq = await this._watermark_db.find({
 			selector: {

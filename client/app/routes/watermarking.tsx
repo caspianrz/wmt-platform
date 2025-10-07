@@ -23,7 +23,7 @@ import axios from "axios";
 import { sha512 } from 'js-sha512';
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Topbar from "~/components/Topbar";
 import EnvironmentManager from "~/models/EnvironmentManager";
 import { useAuth } from "~/providers/AuthProvider";
@@ -142,8 +142,10 @@ export default function WatermarkingPage() {
 	const [watermarks, setWatermarks] = useState<Watermark[]>([]);
 	const { uuid } = useParams();
 	const auth = useAuth();
+	const nav = useNavigate();
 	const [open, setOpen] = useState(false);
 	const [selectedWatermark, setSelectedWatermark] = useState<Watermark>(watermarks[0]);
+	const [watermarkedid, setWatermarkedid] = useState<string | undefined>(undefined);
 
 	const selectWatermark = (id: string) => {
 		let i = 0;
@@ -209,6 +211,8 @@ export default function WatermarkingPage() {
 
 	const [selectedStrategy, setSelectedStrategy] = useState<null | string>(null);
 	const [watermarkedImageReady, setWatermarkedImageReady] = useState(false);
+	const [watermarkedImage, setWatermarkedImage] = useState<string | null>(null);
+
 
 	const queueImageForWatermarking = () => {
 		const sData = strategyData.get(selectedStrategy!);
@@ -239,8 +243,13 @@ export default function WatermarkingPage() {
 			headers: {
 				Authorization: auth.token
 			}
-		}).then((res)=> {
-			console.log(res);
+		}).then((res) => {
+			if (res.status == 200) {
+				const watermarkedEP = EnvironmentManager.Instance.endpoint(`/api/${res.data.outputs[0]}`);
+				setWatermarkedImageReady(true);
+				setWatermarkedImage(watermarkedEP.href);
+				setWatermarkedid(res.data.id);
+			}
 		});;
 	}
 
@@ -258,12 +267,17 @@ export default function WatermarkingPage() {
 						Selected Image
 					</Typography>
 					<Card sx={{ maxWidth: "100%" }}>
-						<CardMedia
-							component="img"
-							sx={{ height: 256 }}
-							image={selectedImage}
-							alt="Selected user image"
-						/>
+						{selectedImage == null && (
+							<Skeleton variant="rectangular" width={256} height={256} />
+						)}
+						{selectedImage != null && (
+							<CardMedia
+								component="img"
+								sx={{ height: 256 }}
+								image={selectedImage}
+								alt="Selected user image"
+							/>
+						)}
 					</Card>
 				</Grid>
 
@@ -316,7 +330,7 @@ export default function WatermarkingPage() {
 							{watermarkedImageReady && (
 								<CardMedia
 									component="img"
-									image="https://via.placeholder.com/400?text=Watermarked+Image"
+									image={`${watermarkedImage}`}
 									alt="Watermarked result"
 								/>
 							)}
@@ -326,7 +340,11 @@ export default function WatermarkingPage() {
 						<Button variant="outlined" onClick={() => setOpen(false)}>
 							Close
 						</Button>
-						<Button variant="contained" color="secondary">
+						<Button variant="contained" color="secondary" onClick={() => {
+							if (watermarkedid != undefined) {
+								nav(`/analyze/raw/${watermarkedid}`);
+							}
+						}}>
 							Go to Analysis
 						</Button>
 					</Box>
