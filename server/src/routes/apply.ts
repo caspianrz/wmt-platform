@@ -4,7 +4,7 @@ import { mkdirpSync, readdirSync, readJsonSync, readSync } from "fs-extra";
 import path from "path";
 import AuthMiddleware, { AuthRequest } from "~/middleware/AuthMiddleware";
 import uuid from "uuid";
-import { exec } from "child_process";
+import { ChildProcess, exec } from "child_process";
 import DatabaseManager from "~/managers/DatabaseManager";
 
 interface StrategyDataExtras {
@@ -81,6 +81,13 @@ const applyWatermarkHandler = async (req: Request, res: Response) => {
 		return res.sendStatus(401);
 	}
 
+	const strategyData = strategiesData.get(wmData.data.strategy);
+
+	let wmText = undefined;
+	if (strategyData?.watermarking.input.kind == 'text') {
+		wmText = wmData.data.watermark;
+	}
+
 	const imagePath = path.join(uploadDir, `/${aReq.user}/assets/${wmData.data.image}`);
 	const wmRecord = await DatabaseManager.instance.getWatermark(wmData.data.watermark);
 	const watermarkPath = wmRecord.path;
@@ -89,10 +96,9 @@ const applyWatermarkHandler = async (req: Request, res: Response) => {
 	if (!existsSync(outputDir)) {
 		mkdirpSync(outputDir);
 	}
-	const strategyData = strategiesData.get(wmData.data.strategy);
 
 	const inputs = [imagePath];
-	const watermarks = [watermarkPath];
+	const watermarks = [wmText == undefined ? watermarkPath : wmText];
 	const createdPaths: string[] = [];
 
 	const inputArgs = strategyData!.watermarking.input.pos;
@@ -121,9 +127,24 @@ const applyWatermarkHandler = async (req: Request, res: Response) => {
 		args[pos] = oput;
 	});
 
+	let proc: ChildProcess | undefined;
 	switch (wmData.data.strategy) {
 		case 'dwthdsvd':
-			const proc = exec(`./bin/dwthdsvdw ${args.join(' ')}`);
+			proc = exec(`./bin/dwthdsvdw ${args.join(' ')}`);
+			proc.on('error', (err) => {
+				console.log(err);
+			});
+			proc.on('exit', (code) => {
+				if (code == 0) {
+					return res.json({
+						id: outputuuid,
+						outputs: createdPaths,
+					});
+				}
+			});
+			break;
+		case 'wmanything':
+			proc = exec(`../../../analyzers/sharif-wm/embed.py ${args.join(' ')}`);
 			proc.on('error', (err) => {
 				console.log(err);
 			});

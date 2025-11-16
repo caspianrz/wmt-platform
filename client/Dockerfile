@@ -1,4 +1,7 @@
 FROM node:20-alpine AS build-env
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
+
 WORKDIR /app
 
 # Install Alpine build tools

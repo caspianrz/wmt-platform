@@ -8,6 +8,7 @@ services:
       - dwt-etc:/app/etc
     depends_on:
       - dwt-watermarking
+      - sharif-wm
 
   client:
     build: ./client
@@ -22,5 +23,9 @@ services:
       - dwt-bin:/usr/local/bin
       - dwt-etc:/usr/local/etc
 
+  sharif-wm:
+    build: ./analyzers/sharif-wm
+
 volumes:
   dwt-bin:
+  dwt-etc:

@@ -1,4 +1,7 @@
 FROM alpine:3
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
+
 RUN apk update && apk add nodejs npm gcompat opencv-dev
 
 WORKDIR /app
