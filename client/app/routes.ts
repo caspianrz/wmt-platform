@@ -1,11 +1,21 @@
-import { type RouteConfig, route, index } from "@react-router/dev/routes";
+import { type RouteConfigEntry, index, route } from "@react-router/dev/routes";
 
-export default [
-	index('routes/index.tsx'),
-	route("/login", "routes/login.tsx"),
-	route("/watermark", "routes/watermark.tsx"),
-	route("/assets", "routes/assets.tsx"),
-	route("/watermarks", "routes/watermarks.tsx"),
-	route("/watermarking/:uuid", "routes/watermarking.tsx"),
-	route("/analyze/:kind/:uuid", "routes/analyze.tsx"),
-] satisfies RouteConfig;
+const modules = import.meta.glob("./routes/**/*.tsx", { eager: true });
+
+function pathToRouteConfig(path: string): RouteConfigEntry {
+  const fileName = path.split("/").pop()!;
+  const relativePath = path.replace(/^\.\/routes\//, "routes/");
+
+  if (fileName === "index.tsx") {
+    return index(relativePath);
+  }
+
+  const routePath =
+    "/" + fileName.replace(".tsx", "").replace(/\[([^\]]+)\]/g, ":$1");
+
+  return route(routePath, relativePath);
+}
+
+const routes: RouteConfigEntry[] = Object.keys(modules).map(pathToRouteConfig);
+
+export default routes;
