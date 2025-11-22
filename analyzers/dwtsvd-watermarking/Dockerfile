@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build  \
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -B build \
 	&& cmake --build build \
 	&& cmake --install build
+
+CMD ["/app/build/api"]

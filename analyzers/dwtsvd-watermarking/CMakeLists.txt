@@ -31,3 +31,6 @@ install(
   FILES strategy.json
   DESTINATION etc/wmtplatform/dwthdsvd
   COMPONENT config)
+
+# Also install api in bin
+install(TARGETS api RUNTIME DESTINATION bin)
