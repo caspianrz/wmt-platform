@@ -13,9 +13,7 @@ enum class WatermarkMethod {
 struct WatermarkExtraData {
   double R;
   double alpha;
-  cv::Mat HSw;
-  cv::Mat Uw;
-  cv::Mat Vw;
+  cv::Mat HSw, Uw, Vw;
 };
 
 class WatermarkExtraStream {
@@ -74,6 +72,94 @@ public:
     file.write(reinterpret_cast<char *>(&Vw_type), sizeof(Vw_type));
     file.write(reinterpret_cast<char *>(data.Vw.data),
                data.Vw.total() * data.Vw.elemSize());
+  }
+
+  static std::vector<unsigned char> convert_vec(WatermarkExtraData data) {
+    std::vector<unsigned char> buf;
+
+    auto write_raw = [&](const void *src, size_t sz) {
+      size_t old_size = buf.size();
+      buf.resize(old_size + sz);
+      std::memcpy(buf.data() + old_size, src, sz);
+    };
+
+    // R and alpha
+    write_raw(&data.R, sizeof(data.R));
+    write_raw(&data.alpha, sizeof(data.alpha));
+
+    // ---- HSw ----
+    {
+      uint32_t rows = data.HSw.rows;
+      uint32_t cols = data.HSw.cols;
+      uint32_t type = data.HSw.type();
+
+      write_raw(&rows, sizeof(rows));
+      write_raw(&cols, sizeof(cols));
+      write_raw(&type, sizeof(type));
+
+      write_raw(data.HSw.data, data.HSw.total() * data.HSw.elemSize());
+    }
+
+    // ---- Uw ----
+    {
+      uint32_t rows = data.Uw.rows;
+      uint32_t cols = data.Uw.cols;
+      uint32_t type = data.Uw.type();
+
+      write_raw(&rows, sizeof(rows));
+      write_raw(&cols, sizeof(cols));
+      write_raw(&type, sizeof(type));
+
+      write_raw(data.Uw.data, data.Uw.total() * data.Uw.elemSize());
+    }
+
+    // ---- Vw ----
+    {
+      uint32_t rows = data.Vw.rows;
+      uint32_t cols = data.Vw.cols;
+      uint32_t type = data.Vw.type();
+
+      write_raw(&rows, sizeof(rows));
+      write_raw(&cols, sizeof(cols));
+      write_raw(&type, sizeof(type));
+
+      write_raw(data.Vw.data, data.Vw.total() * data.Vw.elemSize());
+    }
+
+    return buf;
+  }
+
+  static WatermarkExtraData parse_vec(const std::vector<unsigned char> &buf) {
+    WatermarkExtraData data;
+    size_t offset = 0;
+
+    auto read_raw = [&](void *dst, size_t sz) {
+      if (offset + sz > buf.size())
+        throw std::runtime_error("Buffer too small");
+      std::memcpy(dst, buf.data() + offset, sz);
+      offset += sz;
+    };
+
+    // R and alpha
+    read_raw(&data.R, sizeof(data.R));
+    read_raw(&data.alpha, sizeof(data.alpha));
+
+    auto read_mat = [&](cv::Mat &mat) {
+      uint32_t rows, cols, type;
+      read_raw(&rows, sizeof(rows));
+      read_raw(&cols, sizeof(cols));
+      read_raw(&type, sizeof(type));
+
+      mat.create(rows, cols, type);
+      read_raw(mat.data, mat.total() * mat.elemSize());
+    };
+
+    // HSw, Uw, Vw
+    read_mat(data.HSw);
+    read_mat(data.Uw);
+    read_mat(data.Vw);
+
+    return data;
   }
 };
 

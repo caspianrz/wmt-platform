@@ -10,10 +10,12 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "ts-node -r tsconfig-paths/register src/index.ts",
-    "watch": "npx tsc --watch"
+    "watch": "npx tsc --watch",
+	"test": "ts-node -r tsconfig-paths/register src/dwthdsvdapi_test.ts"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.10",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",

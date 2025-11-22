@@ -1,4 +1,4 @@
-FROM docker.arvancloud.ir/alpine:latest as builder
+FROM alpine:latest as builder
 
 RUN apk update && apk add g++ cmake opencv make opencv-dev pkgconfig
 
