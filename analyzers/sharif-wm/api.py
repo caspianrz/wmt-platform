@@ -9,20 +9,19 @@ import extract
 app = FastAPI()
 
 class EmbedArgs(BaseModel):
-    inp: str
-    outp: str
-    uid: str
+    base: str
+    watermark: str
 
 class ExtractArgs(BaseModel):
-    inp: str
+    image: str
 
 @app.post("/embed")
 async def embed_api(args : EmbedArgs):
-    return { "id": embed.embed(args.inp, args.outp, args.uid) }
+    return { "image": embed.embed(args.base, args.watermark) }
 
 @app.post("/extract")
 async def extract_api(args : ExtractArgs):
-    return { "id": extract.extract(args.inp) }
+    return { "watermark": extract.extract(args.image) }
 
 if __name__ == "__main__":
-    uvicorn.run("api:app", host="0.0.0.0", port=9000)
+    uvicorn.run("api:app", host="0.0.0.0", port=10002)
