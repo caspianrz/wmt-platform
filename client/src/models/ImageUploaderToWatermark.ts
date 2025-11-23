@@ -1,0 +1,72 @@
+import axios, { type AxiosResponse } from "axios";
+import EnvironmentManager from "./EnvironmentManager";
+
+interface WatermarkUploadData {
+	image: string; // dataURL of base image
+	watermark: string; // dataURL of watermark
+	alpha: number;
+}
+
+function dataURLtoBlob(dataURL: string) {
+	const arr = dataURL.split(',');
+	const x = arr[0].match(/:(.*?);/);
+	if (x == null || x[1] == null) {
+		return;
+	}
+	const mime = x[1];
+	const bstr = atob(arr[1]);
+	let n = bstr.length;
+	const u8arr = new Uint8Array(n);
+
+	while (n--) {
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+
+	return new Blob([u8arr], { type: mime });
+}
+
+interface WatermarkResponse {
+	data: WatermarkDataResponse;
+	status: number;
+}
+
+interface WatermarkDataResponse {
+	status: number;
+	id?: string;
+	url?: string;
+	message?: string;
+}
+
+export interface WatermarkedImage {
+	id: string | undefined;
+	wmimage: string | undefined;
+	watermark: string | undefined;
+}
+
+export default function ImageUploaderToWatermark(data: WatermarkUploadData, onFulfilled: (response: WatermarkedImage) => void, onError: ((reason: any) => void) | null) {
+	const serverURL = new URL("/api/watermark", document.location.origin);
+	const formData = new FormData();
+	formData.append('image', new File([dataURLtoBlob(data.image) as BlobPart], 'image.png', { type: 'image/png' }));
+	formData.append('watermark', new File([dataURLtoBlob(data.watermark) as BlobPart], 'watermark.png', { type: 'image/png' }));
+	formData.append('alpha', `${data.alpha}`);
+	serverURL.port = EnvironmentManager.Instance.SERVER_PORT;
+	axios.post(serverURL.href, formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	})
+		.then((res: WatermarkResponse) => {
+			axios.get(serverURL.href, {
+				params: {
+					id: res.data.id
+				},
+			})
+				.then((res2: AxiosResponse) => {
+					if (res2.data.url != null) {
+						onFulfilled({ id: res.data.id, wmimage: res.data.url, watermark: res2.data.url });
+					}
+				})
+				.catch(onError);
+		})
+		.catch(onError);
+}

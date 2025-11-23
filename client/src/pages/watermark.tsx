@@ -1,3 +1,11 @@
+import { Box } from "@mui/material";
+
+import WatermarkCreator from "../components/WatermarkCreator";
+
 export default function Watermark() {
-  return <>watermark</>;
+  return (
+    <Box>
+      <WatermarkCreator />
+    </Box>
+  );
 }
