@@ -7,6 +7,19 @@ type SidebarProps = {
   hiddenPages?: string[];
 };
 
+// دایره خالی ساده برای همه مسیرها
+const CircleIcon = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+  >
+    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+  </svg>
+);
+
 const Sidebar: React.FC<SidebarProps> = ({ pages, hiddenPages = [] }) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -45,43 +58,54 @@ const Sidebar: React.FC<SidebarProps> = ({ pages, hiddenPages = [] }) => {
     </svg>
   );
 
-  const HomeIcon = (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-    >
-      <path
-        d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9z"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-
   return (
     <div
       style={{
-        width: collapsed ? 60 : 200,
+        width: collapsed ? 30 : 200,
         transition: "width 0.3s",
-        padding: "20px 10px 0 20px",
+        padding: "20px 10px",
         background: "#1f2937",
         color: "#fff",
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
       }}
     >
       <div>
-        <h3
-          style={{ marginBottom: 20, textAlign: collapsed ? "center" : "left" }}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          {!collapsed ? "Navigation" : "NAV"}
-        </h3>
+          <h3
+            style={{
+              display: collapsed ? "none" : "block",
+              marginBottom: 20,
+              textAlign: collapsed ? "center" : "left",
+            }}
+          >
+            {!collapsed ? "Navigation" : ""}
+          </h3>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              background: "#374151",
+              border: "none",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 20,
+              padding: "8px 8px 4px 8px",
+              borderRadius: 6,
+              alignSelf: "center",
+              // marginTop: 20,
+            }}
+          >
+            {collapsed ? ChevronRight : ChevronLeft}
+          </button>
+        </div>
 
         <ul style={{ listStyle: "none", padding: 0 }}>
           {Object.keys(pages)
@@ -92,47 +116,32 @@ const Sidebar: React.FC<SidebarProps> = ({ pages, hiddenPages = [] }) => {
 
               return (
                 <li key={pageName} style={{ margin: "10px 0" }}>
-                  <Link
-                    to={path}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: collapsed ? "center" : "flex-start",
-                      background: isActive ? "#374151" : "transparent",
-                      borderRadius: 6,
-                      padding: "8px 12px",
-                      textDecoration: "none",
-                      color: "#fff",
-                      transition: "background 0.2s",
-                    }}
-                  >
-                    <span style={{ marginRight: collapsed ? 0 : 10 }}>
-                      {HomeIcon}
-                    </span>
-                    {!collapsed && <span>{pageName}</span>}
-                  </Link>
+                  {!collapsed && (
+                    <Link
+                      to={path}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: collapsed ? "center" : "flex-start",
+                        background: isActive ? "#374151" : "transparent",
+                        borderRadius: 6,
+                        padding: "8px 12px",
+                        textDecoration: "none",
+                        color: "#fff",
+                        transition: "background 0.2s",
+                      }}
+                    >
+                      <span style={{ marginRight: collapsed ? 0 : 10 }}>
+                        {CircleIcon}
+                      </span>
+                      {!collapsed && <span>{pageName}</span>}
+                    </Link>
+                  )}
                 </li>
               );
             })}
         </ul>
       </div>
-
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        style={{
-          background: "#374151",
-          border: "none",
-          color: "#fff",
-          cursor: "pointer",
-          fontSize: 20,
-          padding: "8px 8px 4px 8px",
-          borderRadius: 6,
-          alignSelf: "center",
-          marginBottom: 40,
-        }}
-      >
-        {collapsed ? ChevronRight : ChevronLeft}
-      </button>
     </div>
   );
 };
