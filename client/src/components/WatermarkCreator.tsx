@@ -1,5 +1,7 @@
 import {
   Button,
+  Card,
+  CardContent,
   FormControl,
   Grid,
   Input,
@@ -17,6 +19,10 @@ import axios from "axios";
 import type OutputFile from "../models/OutputFile";
 import { useAuth } from "../providers/AuthProvider";
 import { useNavigate, useSearchParams } from "react-router";
+import toast from "react-hot-toast";
+import api from "../axios_config";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import ClearIcon from "@mui/icons-material/Clear";
 
 function dataURLtoFile(dataUrl: string, filename: string): File {
   const [header, base64] = dataUrl.split(",");
@@ -95,8 +101,9 @@ function BasicTextWatermark(props: OutputFile) {
   };
 
   return (
-    <Grid container columns={2} columnSpacing={2}>
-      <Stack spacing={1} justifyContent="center">
+    <Grid sx={{display:'flex' , alignItems:'flex-start' , gap:'16px' , flexDirection: { xs: 'column', md: 'row' },}}
+    >
+      <Stack sx={{width:{xs:'100%' , md:'50%'}}} spacing={1} justifyContent="center">
         <InputLabel shrink htmlFor="watermark-text">
           Text
         </InputLabel>
@@ -178,7 +185,7 @@ function BasicTextWatermark(props: OutputFile) {
         />
       </Stack>
 
-      <Grid>
+      <Grid sx={{width:{xs:'100%' , md:'50%'}}}>
         <InputLabel shrink>Preview</InputLabel>
         <ImageCanvas imageData={image} />
       </Grid>
@@ -198,55 +205,86 @@ function BasicWatermarkCreator() {
   const [searchParams] = useSearchParams();
   const nav = useNavigate();
 
-  const handleUploadWatermark = (event: FormEvent<HTMLFormElement>) => {
+
+  const handleUploadWatermark = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     const endpoint = EnvironmentManager.Instance.endpoint("/api/watermark");
     const formData = new FormData();
     formData.append("file", file!, file?.name);
-    axios
-      .post(endpoint.href, formData, {
+
+    try {
+      const response = await api.post(endpoint.href, formData, {
         headers: {
+          "Content-Type": "multipart/form-data",
           Authorization: auth.token!,
         },
-      })
-      .then((response) => {
-        const redirect = searchParams.get("redirect");
-        if (response.status == 200 && redirect != undefined) {
-          nav(redirect);
-        }
       });
+
+      toast.success("Watermark uploaded successfully!");
+      setFile(undefined);
+      setFileName("");
+
+      const redirect = searchParams.get("redirect");
+      if (response.status == 200 && redirect != undefined) {
+        nav(redirect);
+      }
+    } catch (error: any) {
+      // ❗️Do NOT show toast here — interceptor already shows it.
+      console.error("Upload failed:", error);
+    }
   };
 
+
+  const handleClearWatermark = () => {
+    setFile(undefined);
+    setFileName("");
+    toast.success("Watermark cleared!");
+  }
+
+
   return (
-    <Stack
-      spacing={1}
-      mt={4}
-      alignItems="center"
-      justifyContent="center"
-      component={"form"}
-      onSubmit={(e) => handleUploadWatermark(e)}
-    >
-      <FormControl fullWidth>
-        <InputLabel id="select-watermark-kind-label">Type</InputLabel>
-        <Select
-          labelId="select-watermark-kind-label"
-          id="select-watermark-kind"
-          value={type}
-          label="Type"
-          onChange={(e) => setType(e.target.value)}
+    <Card sx={{ width: "100%", maxWidth: 800, mt: 4, mb: 4, borderRadius: 4, boxShadow: 6, margin: '48px auto' }}>
+      <CardContent>
+        <Stack
+          spacing={1}
+          mt={4}
+          alignItems="center"
+          justifyContent="center"
+          component={"form"}
+          onSubmit={(e) => handleUploadWatermark(e)}
         >
-          <MenuItem value={0}>Image</MenuItem>
-          <MenuItem value={1}>Text</MenuItem>
-        </Select>
-      </FormControl>
+          <FormControl style={{marginBottom:'24px'}} fullWidth>
+            <InputLabel id="select-watermark-kind-label">Type</InputLabel>
+            <Select
+              labelId="select-watermark-kind-label"
+              id="select-watermark-kind"
+              value={type}
+              label="Type"
+              onChange={(e) => setType(e.target.value)}
+            >
+              <MenuItem value={0}>Image</MenuItem>
+              <MenuItem value={1}>Text</MenuItem>
+            </Select>
+          </FormControl>
 
-      {type == 0 && <ImageUploader file={file} setFile={setFile} />}
+          {type == 0 && <ImageUploader file={file} setFile={setFile} />}
 
-      {type == 1 && <BasicTextWatermark file={file} setFile={setFile} />}
-      <Button sx={{ maxWidth: 300 }} variant="contained" type="submit">
-        Save
-      </Button>
-    </Stack>
+          {type == 1 && <BasicTextWatermark file={file} setFile={setFile} />}
+          <Grid style={{marginTop:'24px'}} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', width: "100%" }}>
+            <Button disabled={!file} sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px" }} variant="contained" color="success" type="submit" startIcon={<SaveOutlinedIcon />}>
+              Save
+            </Button>
+            <Button
+              onClick={handleClearWatermark}
+              sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px", display: file ? 'flex' : 'none' }} variant="contained" color="error" type="button" startIcon={<ClearIcon />}>
+              Clear
+            </Button>
+          </Grid>
+        </Stack>
+      </CardContent>
+    </Card>
+
   );
 }
 

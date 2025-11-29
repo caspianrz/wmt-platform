@@ -4,6 +4,7 @@ import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 
 
 interface TabPanelProps {
@@ -35,6 +36,9 @@ export default function AuthenticationForm() {
 	useEffect(() => {
 		if (auth.is_valid()) {
 			navigate('/');
+			toast.success('Login successfully!')
+		}else{
+			toast.error('Login failed , please try a few moment later')
 		}
 	}, [auth, navigate]);
 

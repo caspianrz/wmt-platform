@@ -31,11 +31,11 @@ export function ImageUploader(props: OutputFile) {
 	}, [props.file]);
 
 	return (
-		<Card style={{width:"100%" , margin:"24px 0px"}}>
+		<Card style={{width:"100%"}}>
 			{!image ? (
 				<Card style={{width:'100%'}}>
 					<Button fullWidth sx={{height: 256 }} component="label">
-						<Stack style={{display:'flex' , flexDirection:'column' , alignItems:'center' , justifyContent:'center' , width:'100%'}} className="flex items-center justify-center" spacing={1}>
+						<Stack style={{display:'flex' , flexDirection:'column' , alignItems:'center' , justifyContent:'center' , width:'100%' , cursor:'pointer'}} className="flex items-center justify-center" spacing={1}>
 							<UploadFile fontSize="large" />
 							<Typography>Choose Image</Typography>
 						</Stack>
@@ -65,7 +65,7 @@ export function ImageUploader(props: OutputFile) {
 							objectFit: "cover",
 						}}
 					/>
-					<Button
+					{/* <Button
 						color="error" variant="contained" sx={{
 							position: "absolute",
 							right: 8,
@@ -76,7 +76,7 @@ export function ImageUploader(props: OutputFile) {
 							padding: 0,
 						}} onClick={() => { props.setFile!(undefined) }}>
 						<X fontSize="small" />
-					</Button>
+					</Button> */}
 				</div>
 			)}
 		</Card>
