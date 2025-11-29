@@ -29,27 +29,11 @@ import toast from "react-hot-toast";
 export default function Assets() {
   const auth = useAuth();
   const nav = useNavigate();
-
-  // const loadImages = async () => {
-  //   const endpoint = EnvironmentManager.Instance.endpoint("/api/upload/");
-  //   try {
-  //     const res = await axios.get(endpoint.href, {
-  //       headers: {
-  //         Authorization: auth.token,
-  //       },
-  //     });
-  //     setImages(res.data);
-  //   } catch (error: any) {
-  //     console.error("Error loading images:", error);
-  //   }
-  // };
   
 
   const [images, setImages] = useState<{ id: string; url: string }[]>([]);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | undefined>(undefined);
-
-  // useEffect(loadImages, []);
 
 
   useEffect(() => {

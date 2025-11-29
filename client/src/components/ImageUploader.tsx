@@ -2,6 +2,7 @@ import { Close as X, UploadFile } from "@mui/icons-material";
 import { Box, Button, Card, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import type OutputFile from "../models/OutputFile";
+import toast from "react-hot-toast";
 
 export function ImageUploader(props: OutputFile) {
 	const [image, setImage] = useState<string | undefined>(undefined);
@@ -10,6 +11,7 @@ export function ImageUploader(props: OutputFile) {
 		const f = event.target.files?.[0];
 		if (f && f.type.startsWith("image/")) {
 			props.setFile!(f);
+			toast.success("Images uploaded successfully!");
 		}
 	};
 
@@ -29,15 +31,16 @@ export function ImageUploader(props: OutputFile) {
 	}, [props.file]);
 
 	return (
-		<Card>
+		<Card style={{width:"100%" , margin:"24px 0px"}}>
 			{!image ? (
-				<Card>
-					<Button fullWidth sx={{ width: 512, height: 512 }} component="label">
-						<Stack className="flex items-center justify-center" spacing={1}>
+				<Card style={{width:'100%'}}>
+					<Button fullWidth sx={{height: 256 }} component="label">
+						<Stack style={{display:'flex' , flexDirection:'column' , alignItems:'center' , justifyContent:'center' , width:'100%'}} className="flex items-center justify-center" spacing={1}>
 							<UploadFile fontSize="large" />
 							<Typography>Choose Image</Typography>
 						</Stack>
-						<input
+						<input 
+						style={{display:'none'}}
 							type="file"
 							accept="image/*"
 							onChange={handleFileChange}
@@ -48,14 +51,16 @@ export function ImageUploader(props: OutputFile) {
 					</Button>
 				</Card>
 			) : (
-				<div className="relative">
+				<div className="relative" style={{display:'flex' , alignItems:"center" , justifyContent:'center' , padding:"24px 0px"}}>
 					<Box
 						component="img"
 						src={image}
 						alt="Watermark File"
 						sx={{
-							width: 512,
-							height: 512,
+							width: '100%',
+							height: '100%',
+							maxWidth:512,
+							maxHeight:512,
 							borderRadius: 2,
 							objectFit: "cover",
 						}}
