@@ -23,29 +23,53 @@ import EnvironmentManager from "../models/EnvironmentManager";
 import axios, { type AxiosResponse } from "axios";
 import { useAuth } from "../providers/AuthProvider";
 import { useNavigate } from "react-router";
+import api from "../axios_config";
+import toast from "react-hot-toast";
 
 export default function Assets() {
   const auth = useAuth();
   const nav = useNavigate();
 
-  const loadImages = () => {
-    const endpoint = EnvironmentManager.Instance.endpoint("/api/upload/");
-    axios
-      .get(endpoint.href, {
-        headers: {
-          Authorization: auth.token,
-        },
-      })
-      .then((res: any) => {
-        setImages(res.data);
-      });
-  };
+  // const loadImages = async () => {
+  //   const endpoint = EnvironmentManager.Instance.endpoint("/api/upload/");
+  //   try {
+  //     const res = await axios.get(endpoint.href, {
+  //       headers: {
+  //         Authorization: auth.token,
+  //       },
+  //     });
+  //     setImages(res.data);
+  //   } catch (error: any) {
+  //     console.error("Error loading images:", error);
+  //   }
+  // };
+  
 
   const [images, setImages] = useState<{ id: string; url: string }[]>([]);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | undefined>(undefined);
 
-  useEffect(loadImages, []);
+  // useEffect(loadImages, []);
+
+
+  useEffect(() => {
+    const loadImages = async () => {
+      const endpoint = EnvironmentManager.Instance.endpoint("/api/upload/");
+  
+      try {
+        const res = await api.get(endpoint.href);
+        setImages(res.data);
+        toast.success("Images loaded successfully!");
+      } catch (error) {
+        toast.error("Failed to load images!");
+      }
+    };
+  
+    loadImages();
+  }, []);
+  
+  
+
   useEffect(() => {}, [images]);
 
   const handleUpload = () => {
