@@ -28,7 +28,7 @@ function AppWrapper() {
 function App() {
   const location = useLocation();
 
-  const hiddenSidebarRoutes = ["/login", "/analyze", "/watermarking"];
+  const hiddenSidebarRoutes = ["/login"];
 
   const hideSidebar = hiddenSidebarRoutes.some((route) =>
     location.pathname.startsWith(route)
