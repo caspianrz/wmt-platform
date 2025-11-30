@@ -43,9 +43,7 @@ export default function Assets() {
       try {
         const res = await api.get(endpoint.href);
         setImages(res.data);
-        if (res.data.length === 0) {
-          toast.error("Images not exist!");
-        } else {
+        if (res.data.length !== 0) {
           toast.success("Images loaded successfully!");
         }
       } catch (error) {
@@ -98,14 +96,15 @@ export default function Assets() {
   };
 
 
-  console.log(images, 'images')
-
   return (
-    <Box sx={{position:'relative'}}>
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       {
         images.length === 0 ?
-          <Grid sx={{position:"absolute" , top:'50%' , right:'50%' , }}>
-            <Typography variant="h6" color="primary">Assets Not Exist</Typography>
+          <Grid sx={{ position: "absolute", top: '50%', left: '50%', transform: "translate(-50%, -50%)", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <Grid sx={{ width: '250px', height: '250px' }}>
+              <img src="./assets/svg/not-found.svg" alt="" style={{ width: '100%', height: '100%' }} />
+            </Grid>
+            <Typography variant="h5" fontWeight={700} color="warning">Assets Not Exist !</Typography>
           </Grid>
           :
           <Box>
@@ -152,7 +151,10 @@ export default function Assets() {
         <AddIcon />
       </Fab>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog open={open} onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Upload Image</DialogTitle>
         <DialogContent>
           <ImageUploader file={file} setFile={setFile} />
