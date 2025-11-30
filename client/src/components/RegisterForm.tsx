@@ -15,6 +15,7 @@ import axios, { type AxiosResponse } from "axios";
 import EnvironmentManager from "../models/EnvironmentManager";
 import { useAuth } from "../providers/AuthProvider";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 export default function RegisterForm() {
   const [email, setEmail] = React.useState("");
@@ -38,29 +39,55 @@ export default function RegisterForm() {
     event.preventDefault();
   };
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
 
-    const endpoint = EnvironmentManager.Instance.endpoint("/api/auth/register");
-    axios
-      .post(endpoint.href, {
-        email: email,
-        username: username,
-        password: password,
-      })
-      .then((data: AxiosResponse<any, any>) => {
-        if (data.status == 200) {
-          const authToken = data.headers["authorization"];
-          auth?.login(authToken);
-          if (auth?.is_valid()) {
-            navigate("/");
-          }
-        } else if (data.status == 490) {
-        }
-      })
-      .catch((reason: any) => {
-        console.log(reason);
+    // const endpoint = EnvironmentManager.Instance.endpoint("/api/auth/register");
+    // axios
+    //   .post(endpoint.href, {
+    //     email: email,
+    //     username: username,
+    //     password: password,
+    //   })
+    //   .then((data: AxiosResponse<any, any>) => {
+    //     if (data.status == 200) {
+    //       const authToken = data.headers["authorization"];
+    //       auth?.login(authToken);
+    //       if (auth?.is_valid()) {
+    //         navigate("/");
+    //       }
+    //     } else if (data.status == 490) {
+    //     }
+    //   })
+    //   .catch((reason: any) => {
+    //     console.log(reason);
+    //   });
+    try {
+      const endpoint = EnvironmentManager.Instance.endpoint("/api/auth/register");
+
+      const response: AxiosResponse<any> = await axios.post(endpoint.href, {
+        email,
+        username,
+        password,
       });
+
+      if (response.status === 200) {
+        const authToken = response.headers["authorization"];
+        auth?.login(authToken);
+
+        toast.success("Registration successful!");
+
+        navigate("/");
+      }
+    } catch (error: any) {
+      console.error(error);
+
+      if (error.response?.status === 409) {
+        toast.error("User already exists.");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    }
   };
 
   return (

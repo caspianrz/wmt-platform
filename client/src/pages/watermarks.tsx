@@ -98,7 +98,7 @@ export default function WatermarksPage() {
                     component="img"
                     image={wm.url}
                     alt={wm.id}
-                    sx={{ height: 256, objectFit: "cover" }}
+                    sx={{ height: 256, objectFit: "contain" }}
                   />
                   <CardContent>
                     <Typography variant="subtitle1">{wm.id}</Typography>
