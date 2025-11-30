@@ -38,7 +38,7 @@ function dataURLtoFile(dataUrl: string, filename: string): File {
   return new File([u8arr], filename, { type: mime });
 }
 
-function BasicTextWatermark(props: OutputFile) {
+function BasicTextWatermark(props: OutputFile & { resetTrigger: number }) {
   const [image, setImage] = React.useState<string | null>(null);
   const [width, setWidth] = React.useState(512);
   const [height, setHeight] = React.useState(512);
@@ -48,6 +48,19 @@ function BasicTextWatermark(props: OutputFile) {
   const [foreground, setForeground] = React.useState("#000000");
   const [offX, setOffX] = React.useState(0);
   const [offY, setOffY] = React.useState(0);
+
+  useEffect(() => {
+    setWatermarkText("");
+    setFontSize(48);
+    setWidth(512);
+    setHeight(512);
+    setBackground("#FFFFFF");
+    setForeground("#000000");
+    setOffX(0);
+    setOffY(0);
+
+    props.setFile?.(undefined);
+  }, [props.resetTrigger]);
 
   useEffect(() => {
     //🔥 به‌جای createCanvas از خود مرورگر استفاده می‌کنیم
@@ -101,9 +114,19 @@ function BasicTextWatermark(props: OutputFile) {
   };
 
   return (
-    <Grid sx={{display:'flex' , alignItems:'flex-start' , gap:'16px' , flexDirection: { xs: 'column', md: 'row' },}}
+    <Grid
+      sx={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "16px",
+        flexDirection: { xs: "column", md: "row" },
+      }}
     >
-      <Stack sx={{width:{xs:'100%' , md:'50%'}}} spacing={1} justifyContent="center">
+      <Stack
+        sx={{ width: { xs: "100%", md: "50%" } }}
+        spacing={1}
+        justifyContent="center"
+      >
         <InputLabel shrink htmlFor="watermark-text">
           Text
         </InputLabel>
@@ -185,7 +208,7 @@ function BasicTextWatermark(props: OutputFile) {
         />
       </Stack>
 
-      <Grid sx={{width:{xs:'100%' , md:'50%'}}}>
+      <Grid sx={{ width: { xs: "100%", md: "50%" } }}>
         <InputLabel shrink>Preview</InputLabel>
         <ImageCanvas imageData={image} />
       </Grid>
@@ -198,13 +221,13 @@ function BasicTextWatermark(props: OutputFile) {
  * or placing a text in a watermark.
  */
 function BasicWatermarkCreator() {
+  const [resetTrigger, setResetTrigger] = React.useState(0);
   const [type, setType] = React.useState(0);
   const [filename, setFileName] = React.useState("");
   const [file, setFile] = React.useState<File | undefined>(undefined);
   const auth = useAuth();
   const [searchParams] = useSearchParams();
   const nav = useNavigate();
-
 
   const handleUploadWatermark = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -224,6 +247,7 @@ function BasicWatermarkCreator() {
       toast.success("Watermark uploaded successfully!");
       setFile(undefined);
       setFileName("");
+      setResetTrigger((prev) => prev + 1);
 
       const redirect = searchParams.get("redirect");
       if (response.status == 200 && redirect != undefined) {
@@ -235,16 +259,24 @@ function BasicWatermarkCreator() {
     }
   };
 
-
   const handleClearWatermark = () => {
     setFile(undefined);
     setFileName("");
     toast.success("Watermark cleared!");
-  }
-
+  };
 
   return (
-    <Card sx={{ width: "100%", maxWidth: 800, mt: 4, mb: 4, borderRadius: 4, boxShadow: 6, margin: '48px auto' }}>
+    <Card
+      sx={{
+        width: "100%",
+        maxWidth: 800,
+        mt: 4,
+        mb: 4,
+        borderRadius: 4,
+        boxShadow: 6,
+        margin: "48px auto",
+      }}
+    >
       <CardContent>
         <Stack
           spacing={1}
@@ -254,7 +286,7 @@ function BasicWatermarkCreator() {
           component={"form"}
           onSubmit={(e) => handleUploadWatermark(e)}
         >
-          <FormControl style={{marginBottom:'24px'}} fullWidth>
+          <FormControl style={{ marginBottom: "24px" }} fullWidth>
             <InputLabel id="select-watermark-kind-label">Type</InputLabel>
             <Select
               labelId="select-watermark-kind-label"
@@ -270,21 +302,61 @@ function BasicWatermarkCreator() {
 
           {type == 0 && <ImageUploader file={file} setFile={setFile} />}
 
-          {type == 1 && <BasicTextWatermark file={file} setFile={setFile} />}
-          <Grid style={{marginTop:'24px'}} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', width: "100%" }}>
-            <Button disabled={!file} sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px" }} variant="contained" color="success" type="submit" startIcon={<SaveOutlinedIcon />}>
+          {type == 1 && (
+            <BasicTextWatermark
+              file={file}
+              setFile={setFile}
+              resetTrigger={resetTrigger}
+            />
+          )}
+
+          <Grid
+            style={{ marginTop: "24px" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "16px",
+              width: "100%",
+            }}
+          >
+            <Button
+              disabled={!file}
+              sx={{
+                width: "100%",
+                maxWidth: 200,
+                fontSize: "14px",
+                padding: "8px 0px",
+                margin: "16px 0px",
+              }}
+              variant="contained"
+              color="success"
+              type="submit"
+              startIcon={<SaveOutlinedIcon />}
+            >
               Save
             </Button>
             <Button
               onClick={handleClearWatermark}
-              sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px", display: file && type == 0 ? 'flex' : 'none' }} variant="contained" color="error" type="button" startIcon={<ClearIcon />}>
+              sx={{
+                width: "100%",
+                maxWidth: 200,
+                fontSize: "14px",
+                padding: "8px 0px",
+                margin: "16px 0px",
+                display: file && type == 0 ? "flex" : "none",
+              }}
+              variant="contained"
+              color="error"
+              type="button"
+              startIcon={<ClearIcon />}
+            >
               Clear
             </Button>
           </Grid>
         </Stack>
       </CardContent>
     </Card>
-
   );
 }
 
