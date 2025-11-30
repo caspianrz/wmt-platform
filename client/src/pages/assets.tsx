@@ -29,7 +29,7 @@ import toast from "react-hot-toast";
 export default function Assets() {
   const auth = useAuth();
   const nav = useNavigate();
-  
+
 
   const [images, setImages] = useState<{ id: string; url: string }[]>([]);
   const [open, setOpen] = useState(false);
@@ -39,22 +39,26 @@ export default function Assets() {
   useEffect(() => {
     const loadImages = async () => {
       const endpoint = EnvironmentManager.Instance.endpoint("/api/upload/");
-  
+
       try {
         const res = await api.get(endpoint.href);
         setImages(res.data);
-        toast.success("Images loaded successfully!");
+        if (res.data.length === 0) {
+          toast.error("Images not exist!");
+        } else {
+          toast.success("Images loaded successfully!");
+        }
       } catch (error) {
         toast.error("Failed to load images!");
       }
     };
-  
+
     loadImages();
   }, []);
-  
-  
 
-  useEffect(() => {}, [images]);
+
+
+  useEffect(() => { }, [images]);
 
   const handleUpload = () => {
     if (!file) return;
@@ -93,41 +97,52 @@ export default function Assets() {
     nav(`/watermarking/${id}`);
   };
 
+
+  console.log(images, 'images')
+
   return (
-    <Box>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Grid container justifyContent="center" spacing={2}>
-          {images.map((i) => (
-            <Grid key={`img-${i.id}`}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  image={`${
-                    EnvironmentManager.Instance.endpoint("/api/" + i.url).href
-                  }`}
-                  alt={`Uploaded ${i.id}`}
-                  sx={{ height: 256, objectFit: "cover" }}
-                />
-                <CardContent>
-                  <Typography variant="subtitle2">Image {i.id}</Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => handleAddWatermark(i.id)}>
-                    Add Watermark
-                  </Button>
-                  <Button
-                    color="error"
-                    size="small"
-                    onClick={() => handleDelete(i.id)}
-                  >
-                    Delete Image
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+    <Box sx={{position:'relative'}}>
+      {
+        images.length === 0 ?
+          <Grid sx={{position:"absolute" , top:'50%' , right:'50%' , }}>
+            <Typography variant="h6" color="primary">Assets Not Exist</Typography>
+          </Grid>
+          :
+          <Box>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+              <Grid container justifyContent="center" spacing={2}>
+                {images.map((i) => (
+                  <Grid key={`img-${i.id}`}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        image={`${EnvironmentManager.Instance.endpoint("/api/" + i.url).href
+                          }`}
+                        alt={`Uploaded ${i.id}`}
+                        sx={{ height: 256, objectFit: "cover" }}
+                      />
+                      <CardContent>
+                        <Typography variant="subtitle2">Image {i.id}</Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small" onClick={() => handleAddWatermark(i.id)}>
+                          Add Watermark
+                        </Button>
+                        <Button
+                          color="error"
+                          size="small"
+                          onClick={() => handleDelete(i.id)}
+                        >
+                          Delete Image
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Container>
+          </Box>
+      }
       <Fab
         color="primary"
         aria-label="upload"

@@ -277,7 +277,7 @@ function BasicWatermarkCreator() {
             </Button>
             <Button
               onClick={handleClearWatermark}
-              sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px", display: file ? 'flex' : 'none' }} variant="contained" color="error" type="button" startIcon={<ClearIcon />}>
+              sx={{ width: '100%', maxWidth: 200, fontSize: "14px", padding: '8px 0px', margin: "16px 0px", display: file && type == 0 ? 'flex' : 'none' }} variant="contained" color="error" type="button" startIcon={<ClearIcon />}>
               Clear
             </Button>
           </Grid>
