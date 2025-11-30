@@ -68,6 +68,9 @@ const Sidebar: React.FC<SidebarProps> = ({ pages, hiddenPages = [] }) => {
         color: "#fff",
         minHeight: "100vh",
         display: "flex",
+        position: "sticky",
+        left: 0,
+        top: 0,
         flexDirection: "column",
         justifyContent: "space-between",
       }}

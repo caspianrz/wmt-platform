@@ -67,9 +67,6 @@ export default function Assets() {
       try {
         const res = await api.get(endpoint.href);
         setImages(res.data);
-        if (res.data.length !== 0) {
-          toast.success("Images loaded successfully!");
-        }
       } catch (error) {
         toast.error("Failed to load images!");
       }

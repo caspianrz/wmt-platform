@@ -87,6 +87,7 @@ function WatermarkList({
         border: "1px solid #ccc",
         borderRadius: 2,
         p: 1,
+        width: "100%",
         scrollbarColor: "#555 #1e1e2e",
         scrollbarWidth: "thin",
       }}
@@ -109,7 +110,6 @@ function WatermarkList({
               flexWrap: "wrap",
               // height: "80vh",
               overflowY: "scroll",
-
             }}
           >
             {watermarks.map((wm) => (
@@ -298,18 +298,28 @@ export default function WatermarkingPage() {
 
   return (
     <Box>
-      <Grid sx={{ display: 'flex' , flexWrap:{xs:"wrap" ,  lg:'nowrap'}, alignItems: 'flex-start', gap: '16px' }}>
+      <Grid
+        sx={{
+          display: "flex",
+          flexWrap: { xs: "wrap", lg: "nowrap" },
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "16px",
+        }}
+      >
         <Grid
           sx={{
             border: "1px solid #ccc",
             borderRadius: 2,
             p: 2,
-            // m: 1,
-            marginTop: '0px',
+            position: "sticky",
+            top: 10,
+            right: 0,
+            marginTop: "0px",
             width: {
-              xs: '100%',
-              md: '25%'
-            }
+              xs: "100%",
+              md: "25%",
+            },
           }}
         >
           <Typography variant="h6" gutterBottom>
@@ -333,9 +343,9 @@ export default function WatermarkingPage() {
         <Grid
           sx={{
             width: {
-              xs: '100%',
-              md: '50%'
-            }
+              xs: "100%",
+              md: "70%",
+            },
           }}
         >
           <WatermarkList
@@ -345,47 +355,43 @@ export default function WatermarkingPage() {
         </Grid>
 
         {/* Right column: strategies + options */}
-        <Grid
-          sx={{
-            border: "1px solid #ccc",
-            borderRadius: 2,
-            p: 2,
-            // m: 1,
-            marginTop: '0px',
-            width: {
-              xs: '100%',
-              md: '25%'
-            }
+      </Grid>
+      <Grid
+        sx={{
+          p: 2,
+          bottom: 10,
+          right: 0,
+          position: "sticky",
+          marginTop: "0px",
+          width: {
+            xs: "100%",
+            md: "25%",
+          },
+        }}
+      >
+        <List>
+          {strategies.map((s: string) => (
+            <ListItem key={s} disablePadding>
+              <ListItemButton
+                onClick={() => setSelectedStrategy(s)}
+                selected={selectedStrategy == s}
+              >
+                <ListItemText primary={strategyData.get(s)?.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => {
+            setOpen(true);
+            queueImageForWatermarking();
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Watermarking Strategy
-          </Typography>
-          <List>
-            {strategies.map((s: string) => (
-              <ListItem key={s} disablePadding>
-                <ListItemButton
-                  onClick={() => setSelectedStrategy(s)}
-                  selected={selectedStrategy == s}
-                >
-                  <ListItemText primary={strategyData.get(s)?.name} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={() => {
-              setOpen(true);
-              queueImageForWatermarking();
-            }}
-          >
-            Apply Watermark
-          </Button>
-        </Grid>
+          Apply Watermark
+        </Button>
       </Grid>
-
       {/* Overlay for watermarked result */}
       <Dialog
         open={open}
