@@ -53,7 +53,7 @@ function App() {
           })}
           <Route path="/watermarking/:uuid" element={<WatermarkingPage />} />
           <Route path="/analyze/:uuid" element={<AnalyzePage />} />
-          <Route path="*" element={<Navigate to="/index" replace />} />
+          <Route path="*" element={<Navigate to="/assets" replace />} />
         </Routes>
       </div>
     </div>

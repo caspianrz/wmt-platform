@@ -30,11 +30,35 @@ export default function Assets() {
   const auth = useAuth();
   const nav = useNavigate();
 
-
   const [images, setImages] = useState<{ id: string; url: string }[]>([]);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | undefined>(undefined);
 
+  useEffect(() => {
+    axios
+      .get(EnvironmentManager.Instance.endpoint("/api/strategy").href, {
+        headers: {
+          Authorization: auth.token,
+        },
+      })
+      .then((res: any) => {
+        (res.data as string[]).forEach((strategy) => {
+          axios
+            .get(
+              EnvironmentManager.Instance.endpoint(`/api/strategy/${strategy}`)
+                .href,
+              {
+                headers: {
+                  Authorization: auth.token,
+                },
+              }
+            )
+            .then((s: any) => {
+              console.log(s);
+            });
+        });
+      });
+  });
 
   useEffect(() => {
     const loadImages = async () => {
@@ -54,9 +78,7 @@ export default function Assets() {
     loadImages();
   }, []);
 
-
-
-  useEffect(() => { }, [images]);
+  useEffect(() => {}, [images]);
 
   const handleUpload = () => {
     if (!file) return;
@@ -95,53 +117,73 @@ export default function Assets() {
     nav(`/watermarking/${id}`);
   };
 
-
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      {
-        images.length === 0 ?
-          <Grid sx={{ position: "absolute", top: '50%', left: '50%', transform: "translate(-50%, -50%)", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <Grid sx={{ width: '250px', height: '250px' }}>
-              <img src="./assets/svg/not-found.svg" alt="" style={{ width: '100%', height: '100%' }} />
-            </Grid>
-            <Typography variant="h5" fontWeight={700} color="warning">Assets Not Exist !</Typography>
+    <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+      {images.length === 0 ? (
+        <Grid
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Grid sx={{ width: "250px", height: "250px" }}>
+            <img
+              src="./assets/svg/not-found.svg"
+              alt=""
+              style={{ width: "100%", height: "100%" }}
+            />
           </Grid>
-          :
-          <Box>
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-              <Grid container justifyContent="center" spacing={2}>
-                {images.map((i) => (
-                  <Grid key={`img-${i.id}`}>
-                    <Card>
-                      <CardMedia
-                        component="img"
-                        image={`${EnvironmentManager.Instance.endpoint("/api/" + i.url).href
-                          }`}
-                        alt={`Uploaded ${i.id}`}
-                        sx={{ height: 256, objectFit: "cover" }}
-                      />
-                      <CardContent>
-                        <Typography variant="subtitle2">Image {i.id}</Typography>
-                      </CardContent>
-                      <CardActions>
-                        <Button size="small" onClick={() => handleAddWatermark(i.id)}>
-                          Add Watermark
-                        </Button>
-                        <Button
-                          color="error"
-                          size="small"
-                          onClick={() => handleDelete(i.id)}
-                        >
-                          Delete Image
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Container>
-          </Box>
-      }
+          <Typography variant="h5" fontWeight={700} color="warning">
+            Assets Not Exist !
+          </Typography>
+        </Grid>
+      ) : (
+        <Box>
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Grid container justifyContent="center" spacing={2}>
+              {images.map((i) => (
+                <Grid key={`img-${i.id}`}>
+                  <Card>
+                    <CardMedia
+                      component="img"
+                      image={`${
+                        EnvironmentManager.Instance.endpoint("/api/" + i.url)
+                          .href
+                      }`}
+                      alt={`Uploaded ${i.id}`}
+                      sx={{ height: 256, objectFit: "cover" }}
+                    />
+                    <CardContent>
+                      <Typography variant="subtitle2">Image {i.id}</Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        size="small"
+                        onClick={() => handleAddWatermark(i.id)}
+                      >
+                        Add Watermark
+                      </Button>
+                      <Button
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(i.id)}
+                      >
+                        Delete Image
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+      )}
       <Fab
         color="primary"
         aria-label="upload"
@@ -151,7 +193,9 @@ export default function Assets() {
         <AddIcon />
       </Fab>
 
-      <Dialog open={open} onClose={() => setOpen(false)}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
         fullWidth
         maxWidth="sm"
       >
