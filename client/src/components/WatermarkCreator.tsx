@@ -38,7 +38,12 @@ function dataURLtoFile(dataUrl: string, filename: string): File {
   return new File([u8arr], filename, { type: mime });
 }
 
-function BasicTextWatermark(props: OutputFile & { resetTrigger: number }) {
+function BasicTextWatermark(
+  props: OutputFile & {
+    resetTrigger: number;
+    onTextChange?: (isEmpty: boolean) => void;
+  }
+) {
   const [image, setImage] = React.useState<string | null>(null);
   const [width, setWidth] = React.useState(512);
   const [height, setHeight] = React.useState(512);
@@ -61,7 +66,9 @@ function BasicTextWatermark(props: OutputFile & { resetTrigger: number }) {
 
     props.setFile?.(undefined);
   }, [props.resetTrigger]);
-
+  useEffect(() => {
+    props.onTextChange?.(watermarkText.trim().length === 0);
+  }, [watermarkText]);
   useEffect(() => {
     //🔥 به‌جای createCanvas از خود مرورگر استفاده می‌کنیم
     const canvas = document.createElement("canvas");
@@ -221,6 +228,7 @@ function BasicTextWatermark(props: OutputFile & { resetTrigger: number }) {
  * or placing a text in a watermark.
  */
 function BasicWatermarkCreator() {
+  const [isTextEmpty, setIsTextEmpty] = React.useState(true);
   const [resetTrigger, setResetTrigger] = React.useState(0);
   const [type, setType] = React.useState(0);
   const [filename, setFileName] = React.useState("");
@@ -307,6 +315,7 @@ function BasicWatermarkCreator() {
               file={file}
               setFile={setFile}
               resetTrigger={resetTrigger}
+              onTextChange={(isEmpty) => setIsTextEmpty(isEmpty)}
             />
           )}
 
@@ -321,7 +330,7 @@ function BasicWatermarkCreator() {
             }}
           >
             <Button
-              disabled={!file}
+              disabled={!file || (type === 1 && isTextEmpty)}
               sx={{
                 width: "100%",
                 maxWidth: 200,
@@ -336,6 +345,7 @@ function BasicWatermarkCreator() {
             >
               Save
             </Button>
+
             <Button
               onClick={handleClearWatermark}
               sx={{
