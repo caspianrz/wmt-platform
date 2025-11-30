@@ -30,17 +30,17 @@ function AuthTabPanel(props: TabPanelProps) {
 }
 
 export default function AuthenticationForm() {
-	const auth = useAuth();
-	const navigate = useNavigate();
+	// const auth = useAuth();
+	// const navigate = useNavigate();
 
-	useEffect(() => {
-		if (auth.is_valid()) {
-			navigate('/');
-			toast.success('Login successfully!')
-		}else{
-			toast.error('Login failed , please try a few moment later')
-		}
-	}, [auth, navigate]);
+	// useEffect(() => {
+	// 	if (auth.is_valid()) {
+	// 		navigate('/');
+	// 		toast.success('Login successfully!')
+	// 	}else{
+	// 		toast.error('Login failed , please try a few moment later')
+	// 	}
+	// }, [auth, navigate]);
 
 	const [value, setValue] = React.useState("0");
 
