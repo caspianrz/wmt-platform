@@ -100,10 +100,16 @@ function WatermarkList({
           <ImageList
             variant="masonry"
             sx={{
-              display: "flex",
+              // display: "flex",
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "repeat(2, 1fr)",
+              },
               flexWrap: "wrap",
-              height: "80vh",
+              // height: "80vh",
               overflowY: "scroll",
+
             }}
           >
             {watermarks.map((wm) => (
@@ -292,13 +298,18 @@ export default function WatermarkingPage() {
 
   return (
     <Box>
-      <Grid container spacing={2}>
+      <Grid sx={{ display: 'flex' , flexWrap:{xs:"wrap" ,  lg:'nowrap'}, alignItems: 'flex-start', gap: '16px' }}>
         <Grid
           sx={{
             border: "1px solid #ccc",
             borderRadius: 2,
             p: 2,
-            m: 1,
+            // m: 1,
+            marginTop: '0px',
+            width: {
+              xs: '100%',
+              md: '25%'
+            }
           }}
         >
           <Typography variant="h6" gutterBottom>
@@ -319,7 +330,14 @@ export default function WatermarkingPage() {
           </Card>
         </Grid>
 
-        <Grid sx={{ flex: 4, m: 1 }}>
+        <Grid
+          sx={{
+            width: {
+              xs: '100%',
+              md: '50%'
+            }
+          }}
+        >
           <WatermarkList
             watermarks={watermarks}
             onSelect={(id) => selectWatermark(id)}
@@ -329,11 +347,15 @@ export default function WatermarkingPage() {
         {/* Right column: strategies + options */}
         <Grid
           sx={{
-            flex: 1,
             border: "1px solid #ccc",
             borderRadius: 2,
             p: 2,
-            m: 1,
+            // m: 1,
+            marginTop: '0px',
+            width: {
+              xs: '100%',
+              md: '25%'
+            }
           }}
         >
           <Typography variant="h6" gutterBottom>

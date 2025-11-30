@@ -5,6 +5,7 @@ import axios, { type AxiosResponse } from 'axios';
 import EnvironmentManager from '../models/EnvironmentManager';
 import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router';
+import toast from 'react-hot-toast';
 
 export default function LoginForm() {
 	const [username, setUsername] = React.useState('');
@@ -23,25 +24,51 @@ export default function LoginForm() {
 		event.preventDefault();
 	};
 
-	const handleSubmit = (event: any) => {
+	const handleSubmit = async (event: any) => {
 		event.preventDefault();
 
-		const endpoint = EnvironmentManager.Instance.endpoint('/api/auth/login');
-		axios.post(endpoint.href, {
-			username: username, password: password
-		}).then((data: AxiosResponse<any, any>) => {
-			if (data.status == 200) {
-				const authToken = data.headers["authorization"];
-				auth?.login(authToken);
-				if (auth?.is_valid()) {
-					navigate('/');
-				}
-			} else {
+		// const endpoint = EnvironmentManager.Instance.endpoint('/api/auth/login');
 
+
+		// axios.post(endpoint.href, {
+		// 	username: username, password: password
+		// }).then((data: AxiosResponse<any, any>) => {
+		// 	if (data.status == 200) {
+		// 		const authToken = data.headers["authorization"];
+		// 		auth?.login(authToken);
+		// 		if (auth?.is_valid()) {
+		// 			navigate('/');
+		// 		}
+		// 	} else {
+
+		// 	}
+		// }).catch((reason: any) => {
+		// 	console.log(reason);
+		// 	toast.error('Invalid username or password.');
+		// });
+
+
+		try {
+			const endpoint = EnvironmentManager.Instance.endpoint('/api/auth/login');
+
+			const response: AxiosResponse<any> = await axios.post(endpoint.href, {
+				username,
+				password,
+			});
+
+			if (response.status === 200) {
+				const authToken = response.headers['authorization'];
+				auth?.login(authToken);
+
+				toast.success('Login successful!');
+
+				navigate('/');
 			}
-		}).catch((reason: any) => {
-			console.log(reason);
-		});
+		} catch (error: any) {
+			console.error(error);
+
+			toast.error('Invalid username or password.');
+		}
 	}
 
 	return (
