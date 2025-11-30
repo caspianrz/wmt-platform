@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import EnvironmentManager from "../models/EnvironmentManager";
 import { useAuth } from "../providers/AuthProvider";
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface WatermarkPreviewData {
   id: string;
@@ -20,6 +21,9 @@ interface WatermarkPreviewData {
 }
 
 export default function WatermarksPage() {
+
+  const [loading, setLoading] = useState(false);
+
   const auth = useAuth();
   const [watermarks, setWatermarks] = useState<WatermarkPreviewData[]>([]);
 
@@ -45,6 +49,7 @@ export default function WatermarksPage() {
 
   useEffect(() => {
     const endpoint = EnvironmentManager.Instance.endpoint("/api/watermark");
+    setLoading(true)
     axios
       .get(endpoint.href, {
         headers: {
@@ -60,15 +65,32 @@ export default function WatermarksPage() {
             };
           });
           setWatermarks(wd);
+          setLoading(false)
         }
       });
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      {
+        loading &&
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', opacity: 0.9, top: "0", zIndex: 1000, width: '100%', height: '100vh', backgroundColor: '#EFECE3' }}>
+          <CircularProgress />
+        </Box>
+      }
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {watermarks.length > 0 ? (
-          <Grid container spacing={3}>
+          <Grid
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(3, 1fr)",
+              },
+              gap: 2,
+            }}
+          >
             {watermarks.map((wm) => (
               <Grid key={wm.id}>
                 <Card>
@@ -95,7 +117,12 @@ export default function WatermarksPage() {
             ))}
           </Grid>
         ) : (
-          <Typography>No watermarks yet.</Typography>
+          <Grid sx={{ position: "absolute", top: '50%', left: '50%', transform: "translate(-50%, -50%)", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <Grid sx={{ width: '250px', height: '250px' }}>
+              <img src="./assets/svg/not-found.svg" alt="" style={{ width: '100%', height: '100%' }} />
+            </Grid>
+            <Typography variant="h5" fontWeight={700} color="warning">No watermarks yet.</Typography>
+          </Grid>
         )}
       </Container>
     </Box>
