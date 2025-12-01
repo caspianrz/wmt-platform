@@ -45,7 +45,7 @@ function BasicTextWatermark(
   }
 ) {
   const [image, setImage] = React.useState<string | null>(null);
-  const [width, setWidth] = React.useState(512);
+  const [widthh, setWidth] = React.useState(512);
   const [height, setHeight] = React.useState(512);
   const [watermarkText, setWatermarkText] = React.useState("");
   const [fontSize, setFontSize] = React.useState(48);
@@ -72,7 +72,7 @@ function BasicTextWatermark(
   useEffect(() => {
     //🔥 به‌جای createCanvas از خود مرورگر استفاده می‌کنیم
     const canvas = document.createElement("canvas");
-    canvas.width = width;
+    canvas.width = widthh;
     canvas.height = height;
 
     const ctx = canvas.getContext("2d");
@@ -80,7 +80,7 @@ function BasicTextWatermark(
 
     // --- پس‌زمینه ---
     ctx.fillStyle = background;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, widthh, height);
 
     // --- متن ---
     ctx.font = `${fontSize}px serif`;
@@ -92,7 +92,7 @@ function BasicTextWatermark(
       (textMeasures.actualBoundingBoxAscent || 0) +
       (textMeasures.actualBoundingBoxDescent || 0);
 
-    const off_x = (width * offX) / 100;
+    const off_x = (widthh * offX) / 100;
     const off_y = (height * offY) / 100;
 
     ctx.fillText(watermarkText, off_x, off_y);
@@ -102,7 +102,7 @@ function BasicTextWatermark(
 
     props.setFile?.(dataURLtoFile(output, "textwatermark.png"));
   }, [
-    width,
+    widthh,
     height,
     watermarkText,
     offX,
@@ -129,11 +129,7 @@ function BasicTextWatermark(
         flexDirection: { xs: "column", md: "row" },
       }}
     >
-      <Stack
-        sx={{ width: { xs: "100%", md: "50%" } }}
-        spacing={1}
-        justifyContent="center"
-      >
+      <Stack sx={{ minWidth: "40%" }} spacing={1} justifyContent="center">
         <InputLabel shrink htmlFor="watermark-text">
           Text
         </InputLabel>
@@ -158,7 +154,7 @@ function BasicTextWatermark(
           Width
         </InputLabel>
         <Input
-          value={width}
+          value={widthh}
           type="number"
           id="watermark-width"
           onChange={(e) => setWidth(parseInt(e.target.value))}
@@ -215,10 +211,7 @@ function BasicTextWatermark(
         />
       </Stack>
 
-      <Grid sx={{ width: { xs: "100%", md: "50%" } }}>
-        <InputLabel shrink>Preview</InputLabel>
-        <ImageCanvas imageData={image} />
-      </Grid>
+      <ImageCanvas imageData={image} width={widthh} height={height} />
     </Grid>
   );
 }
