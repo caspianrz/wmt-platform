@@ -14,6 +14,43 @@
 int main(int argc, char *argv[]) {
   crow::SimpleApp app;
 
+  CROW_ROUTE(app, "/strategy")
+      .methods("GET"_method)([](const crow::request &req) {
+        crow::json::wvalue res_json;
+
+        const std::string response = "{"
+                                     "\"embed\":{"
+                                     "\"request\":{"
+                                     "\"base\":\"image;base64\","
+                                     "\"watermark\":\"image;base64\","
+                                     "\"alpha\":\"opt/double\""
+                                     "},"
+                                     "\"response\":{"
+                                     "\"image\":\"image;base64\","
+                                     "\"data\":\"bin;base64\""
+                                     "}"
+                                     "},"
+                                     "\"extract\":{"
+                                     "\"request\":{"
+                                     "\"image\":\"image;base64\","
+                                     "\"data\":\"bin;base64\""
+                                     "},"
+                                     "\"response\":{"
+                                     "\"watermark\":\"image;base64\""
+                                     "}"
+                                     "}"
+                                     "}";
+
+        auto parsed = crow::json::load(response);
+        if (!parsed) {
+          res_json["reason"] = "Invalid json response";
+          res_json["non-parsed"] = response;
+          return crow::response(500, res_json);
+        }
+        res_json = parsed;
+        return crow::response(200, res_json);
+      });
+
   CROW_ROUTE(app, "/embed")
       .methods("POST"_method)([](const crow::request &req) {
         auto json = crow::json::load(req.body);
