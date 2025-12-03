@@ -15,6 +15,28 @@ class EmbedArgs(BaseModel):
 class ExtractArgs(BaseModel):
     image: str
 
+@app.get("/strategy")
+async def strategy_api():
+    return {
+            "embed": {
+                "request": {
+                    "base": "image;base64",
+                    "watermark": "string;int64"
+                },
+                "response": {
+                    "image": "image;base64"
+                }
+            },
+            "extract": {
+                "request": {
+                    "image": "image;base64"
+                },
+                "response": {
+                    "watermark": "image;base64"
+                }
+            }
+        }
+
 @app.post("/embed")
 async def embed_api(args : EmbedArgs):
     return { "image": embed.embed(args.base, args.watermark) }
