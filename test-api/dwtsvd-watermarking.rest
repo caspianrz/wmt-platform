@@ -1,0 +1,12 @@
+GET http://0.0.0.0:10001/strategy
+
+###
+POST http://0.0.0.0:10001/extract
+Content-Type: application/json
+
+{
+    "data": "bin;base64",
+    "image": "image;base64"
+}
+
+###

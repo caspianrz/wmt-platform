@@ -1,6 +1,6 @@
 FROM alpine:latest as builder
 
-RUN apk update && apk add g++ cmake opencv make opencv-dev pkgconfig
+RUN apk update && apk add g++ cmake opencv make opencv-dev pkgconfig asio-dev libarchive-dev
 
 WORKDIR /app
 

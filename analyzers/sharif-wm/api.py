@@ -32,7 +32,7 @@ async def strategy_api():
                     "image": "image;base64"
                 },
                 "response": {
-                    "watermark": "image;base64"
+                    "watermark": "string;int64"
                 }
             }
         }

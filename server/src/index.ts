@@ -1,28 +1,39 @@
+import cors from "cors";
+import dotenv from "dotenv";
 import express, { Application } from "express";
-import cors from 'cors';
-import bodyParser from "body-parser";
-import dotenv from 'dotenv';
+import mongoose from "mongoose";
 
 dotenv.config();
 
-import API from '@routes/api';
+import API from "@routes/api";
+import { fetchStrategyData } from "./strategies/GetStrategy";
 
 const app: Application = express();
 const corsOptions = {
-	exposedHeaders: ['Authorization'],
-	methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-	allowedHeaders: ['Authorization', 'Content-Type'], // Allowed headers
+  exposedHeaders: ["Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+  allowedHeaders: ["Authorization", "Content-Type"], // Allowed headers
 };
-
 
 // Register middle-wares.
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/api', API);
+app.use("/api", API);
 
-const port = process.env.PORT || 9990;
+const port = process.env.PORT || 10000;
+console.log(process.env.DATABASE_URL);
 
-app.listen(port, () => {
-	console.log(`Server is running on http://localhost:${port}`);
-});
+mongoose.set("strictQuery", false);
+
+mongoose
+  .connect(process.env.DATABASE_URL!, { serverSelectionTimeoutMS: 5000 })
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err.message);
+  });
+
+fetchStrategyData();
