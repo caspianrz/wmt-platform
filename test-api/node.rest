@@ -1,4 +1,7 @@
-POST http://0.0.0.0:10000/api/auth/register
+@baseUrl = http://0.0.0.0:10000
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MTg4MjA5LCJleHAiOjE3NjUxOTU0MDl9.5fewWTBInFI5CnEmU8Is0AyH7BUjQFibiOBqdWFx27Y
+
+POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
@@ -8,10 +11,35 @@ Content-Type: application/json
 }
 
 ###
-POST http://0.0.0.0:10000/api/auth/login
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
+
 
 {
     "username": "ali",
     "password": "123"
 }
+
+###
+POST {{baseUrl}}/api/upload
+Content-Type: multipart/form-data
+Authorization: {{token}}
+# test this with other applications
+
+###
+GET {{baseUrl}}/api/upload
+Authorization: {{token}}
+
+###
+GET {{baseUrl}}/api/upload/7878e5db-a3e7-4350-ae11-8758b17e8e86
+Authorization: {{token}}
+
+###
+PUT {{baseUrl}}/api/upload/df6356b1-0305-4b0d-afe8-72d1c3d6bbd9
+Authorization: {{token}}
+Content-Type: multipart/form-data
+# test this with other applications
+
+###
+DELETE {{baseUrl}}/api/upload/f20645bf-a615-4d5c-91c0-edc26a543861
+Authorization: {{token}}

@@ -5,7 +5,7 @@ import { JWT_SECRET } from "~/middleware/AuthMiddleware";
 import UserModel from "~/models/users";
 
 const setToken = (res: Response, username: string, userId: string) => {
-  const token = jwt.sign({ userId: userId, user: username }, JWT_SECRET!, {
+  const token = jwt.sign({ userId: userId, user: username }, JWT_SECRET, {
     expiresIn: "2h",
   });
   return res.setHeader("Authorization", `Bearer ${token}`);
@@ -51,7 +51,6 @@ export const registerHandler = async (req: Request, res: Response) => {
 };
 
 export const loginHandler = async (req: Request, res: Response) => {
-  console.log(req.body);
   const { username, password } = req.body;
 
   try {

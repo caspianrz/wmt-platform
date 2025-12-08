@@ -20,11 +20,12 @@ const uploadDir = path.join(".", "uploads");
 
 export const storage = multer.diskStorage({
   destination: uploadDir,
-  filename: (req: Request & AuthRequest, _file, cb) => {
-    const user: string = req.user!;
+  filename: (req: Request & AuthRequest, file, cb) => {
+    const fileExt = path.extname(file.originalname);
+    const userid: string = req.userid;
     const id = uuid.v4();
-    mkdirpSync(`${uploadDir}/${user}/assets/`);
-    cb(null, `${user}/assets/${id}`);
+    mkdirpSync(`${uploadDir}/${userid}/assets/`);
+    cb(null, `${userid}/assets/${id}${fileExt}`);
   },
 });
 
