@@ -1,16 +1,16 @@
 import { Request, Response, Router } from "express";
-import { existsSync, readdirSync, readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
+import { strategyData } from "~/strategies/GetStrategy";
 
 const router: Router = Router();
 
-const strategies =
-  /**
-   * This function returns list of all strategies available.
-   */
-  router.get("/", async (req: Request, res: Response) => {
-    const strategies = readdirSync("./etc/wmtplatform");
-    res.json(strategies);
-  });
+/**
+ * This function returns list of all strategies available.
+ */
+router.get("/", async (_req: Request, res: Response) => {
+  const strategies = strategyData;
+  return res.status(200).json(Object.keys(strategies));
+});
 
 router.get("/:strategy", async (req: Request, res: Response) => {
   const strategy = req.params["strategy"];
@@ -18,16 +18,11 @@ router.get("/:strategy", async (req: Request, res: Response) => {
     return res.status(401).json({ message: "No strategy specified." });
   }
 
-  if (!existsSync(`./etc/wmtplatform/${strategy}`)) {
+  if (!strategyData[strategy]) {
     return res.status(404).json({ message: "Strategy not found." });
   }
 
-  const data = readFileSync(
-    `./etc/wmtplatform/${strategy}/strategy.json`,
-    "utf8"
-  );
-
-  return res.status(200).json(JSON.parse(data));
+  return res.status(200).json(strategyData[strategy]);
 });
 
 export default router;

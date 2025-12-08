@@ -4,6 +4,7 @@ import path from "path";
 import uuid from "uuid";
 import { AuthRequest } from "~/middleware/AuthMiddleware";
 import FileModel from "~/models/files";
+import sharp from "sharp";
 
 interface FileRequest extends Request {
   file: Express.Multer.File;
@@ -16,6 +17,8 @@ export const fileSendHandler = async (req: Request, res: Response) => {
   if (!freq.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
+
+  // const { width, height, format } = await sharp(freq.file.path).metadata();
 
   const filename = freq.file.filename;
   const fsep = filename.split("/");

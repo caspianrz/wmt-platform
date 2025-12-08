@@ -1,38 +1,40 @@
 import axios from "axios";
-import { stat } from "fs";
+import dotenv from "dotenv";
 
-export let strategyDataWtsvd: Object;
-export let strategyDataSharifWM: Object;
+dotenv.config();
 
-const strategyList = {
-  "DWT HD SVD": "http://0.0.0.0:10001/strategy",
-  "Sharif WM": "http://0.0.0.0:10002/strategy",
-};
+const strategyList = JSON.parse(process.env.STRATEGY_LIST!);
 
-const fetchStrategyDatadWtsvd = async () => {
-  try {
-    const response = await axios.get("http://0.0.0.0:10001/strategy");
-    strategyDataWtsvd = response.data;
-    console.log("Strategy data WTSVD fetched and stored!");
-  } catch (error) {
-    console.error("Failed to fetch strategy data:", error);
+export const strategyData: Record<string, unknown> = {};
+
+const cleanStrategyData = (obj: Record<string, unknown>) => {
+  for (const key in obj) {
+    if (typeof obj[key] === "string") {
+      obj[key] = obj[key].replace("image;base64", "image name");
+    } else if (typeof obj[key] === "object" && obj[key] !== null) {
+      cleanStrategyData(obj[key] as Record<string, unknown>);
+    }
   }
+  return obj;
 };
 
-const fetchStrategyDatadSharifWM = async () => {
+export const fetchStrategyData = async () => {
   try {
-    const response = await axios.get("http://0.0.0.0:10002/strategy");
-    strategyDataSharifWM = response.data;
-    console.log("Strategy data SharifWM fetched and stored!");
-  } catch (error) {
-    throw error;
-  }
-};
+    const entries = Object.entries(strategyList);
+    const results = await Promise.all(
+      entries.map(async ([key, url]) => {
+        const response = await axios.get(url as string);
+        return [key, response.data] as [string, unknown];
+      })
+    );
 
-export const fetchStrategyData = () => {
-  try {
-    fetchStrategyDatadWtsvd();
-    fetchStrategyDatadSharifWM();
+    results.forEach(([key, data]) => {
+      strategyData[key] = data;
+    });
+
+    cleanStrategyData(strategyData);
+
+    console.log("Strategy data fetched and stored!");
   } catch (error) {
     console.error("Failed to fetch strategy data:", error);
   }
