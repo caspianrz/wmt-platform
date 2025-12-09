@@ -1,5 +1,5 @@
 @baseUrl = http://0.0.0.0:10000/api
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MTg4MjA5LCJleHAiOjE3NjUxOTU0MDl9.5fewWTBInFI5CnEmU8Is0AyH7BUjQFibiOBqdWFx27Y
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MjgzNDMwLCJleHAiOjE3NjUyOTA2MzB9.ub4SHiO6BsP2wRdoacSCUSQ5olfABp-LoiaDBwg7Hvc
 
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
@@ -31,7 +31,7 @@ GET {{baseUrl}}/upload
 Authorization: {{token}}
 
 ###
-GET {{baseUrl}}/upload/7878e5db-a3e7-4350-ae11-8758b17e8e86
+GET {{baseUrl}}/upload/214991ac-956c-4c1f-8e93-9e7ac479ed69
 Authorization: {{token}}
 
 ###
@@ -49,3 +49,13 @@ GET {{baseUrl}}/strategy
 
 ###
 GET {{baseUrl}}/strategy/Sharif-WM
+
+###
+POST {{baseUrl}}/apply/Sharif-WM
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "base": "214991ac-956c-4c1f-8e93-9e7ac479ed69",
+    "watermark": "123"
+}

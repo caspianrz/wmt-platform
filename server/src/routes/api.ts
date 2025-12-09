@@ -14,6 +14,6 @@ const router: Router = Router();
 router.use("/upload", Upload);
 router.use("/auth", Auth);
 router.use("/strategy", Strategy);
-// router.use('/apply', Apply);
+router.use("/apply", Apply);
 
 export default router;
