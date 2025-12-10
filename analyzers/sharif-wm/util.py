@@ -149,7 +149,7 @@ def tensor_to_base64(img_tensor):
 
     # Save to a bytes buffer
     buffer = io.BytesIO()
-    img_pil.save(buffer, format="JPG")
+    img_pil.save(buffer, format="JPEG")
     buffer.seek(0)
 
     # Encode as base64
