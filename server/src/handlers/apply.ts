@@ -20,19 +20,17 @@ export const applyWatermarkHandler = async (req: Request, res: Response) => {
     // Check for exact key match
     const allKeysMatch = reqStrategyKeys.every((key) => bodyKeys.includes(key));
 
-    if (!allKeysMatch) {
+    // chech for length
+    const lengthMatch = reqStrategyKeys.length !== bodyKeys.length;
+
+    if (!allKeysMatch || lengthMatch) {
       return res.status(400).json({ message: "Bad Arguments" });
     }
 
     const { userid } = req as Request & AuthRequest;
 
-    const newBody: Record<string, string> = {};
-    for (const key of reqStrategyKeys) {
-      newBody[key] = req.body[key];
-    }
-
     const imageInfo = await FileModel.findOne({
-      name: newBody["base"] || "",
+      name: req.body.base,
       userId: userid,
     });
 
@@ -42,24 +40,32 @@ export const applyWatermarkHandler = async (req: Request, res: Response) => {
 
     const imageBase64 = readFileSync(imageInfo.path).toString("base64");
 
+    const newBody: Record<string, string> = {};
+    for (const key of reqStrategyKeys) {
+      newBody[key] = key === "base" ? imageBase64 : req.body[key];
+    }
+
+    console.log(newBody);
+
     const embedUrl = `${strategyData[strategy!]["url"]}/embed`;
 
     // send to another server as raw bytes
-    const response = await axios.post(embedUrl, newBody, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // const response = await axios.post(embedUrl, newBody, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
 
-    const { image, data }: { image: string; data: string } = response.data; // base64 strings
-    const imageBytes = Buffer.from(image, "base64");
-    const dataBytes = Buffer.from(data, "base64");
+    // const { image, data }: { image: string; data: string } = response.data; // base64 strings
+    // const imageBytes = Buffer.from(image, "base64");
+    // const dataBytes = Buffer.from(data, "base64");
 
     return res.status(200).json({
       image: imageBase64,
-      data: newBody,
+      watermark: req.body.watermark,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

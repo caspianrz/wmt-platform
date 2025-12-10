@@ -1,5 +1,5 @@
 @baseUrl = http://0.0.0.0:10000/api
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MjgzNDMwLCJleHAiOjE3NjUyOTA2MzB9.ub4SHiO6BsP2wRdoacSCUSQ5olfABp-LoiaDBwg7Hvc
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MzQxNTQ4LCJleHAiOjE3NjUzNDg3NDh9.Zp5hsn2aYa8tkiljnX6YqfAVNS7pgMoC-FyrMkMRbsI
 
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
