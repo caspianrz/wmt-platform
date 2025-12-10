@@ -11,6 +11,7 @@ import io
 
 import torch
 from torchvision import transforms
+from torchvision.utils import save_image
 
 from watermark_anything.data.transforms import default_transform, normalize_img, unnormalize_img
 from watermark_anything.models import Wam, build_embedder, build_extractor
@@ -126,15 +127,18 @@ def load_img(path):
     return img
 
 def load_img_from_base64(base64_str):
-    # Decode the base64 string into bytes
-    img_bytes = base64.b64decode(base64_str)
-    
-    # Open image from bytes
-    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-    
-    # Apply your existing transform and move to device
-    img = default_transform(img).unsqueeze(0).to(device)
-    return img
+    try: 
+        # Decode the base64 string into bytes
+        img_bytes = base64.b64decode(base64_str)
+        
+        # Open image from bytes
+        img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+        
+        # Apply your existing transform and move to device
+        img = default_transform(img).unsqueeze(0).to(device)
+        return img
+    except Exception as e:
+        print("Error loading image from base64:", e)
 
 def tensor_to_base64(img_tensor):
     """
@@ -143,15 +147,8 @@ def tensor_to_base64(img_tensor):
     """
     # Remove batch dimension
     img_tensor = img_tensor.squeeze(0).to(device)
-    
-    # Convert to PIL Image
-    img_pil = transforms.ToPILImage()(img_tensor)  # if img in [0,1]
-
     # Save to a bytes buffer
     buffer = io.BytesIO()
-    img_pil.save(buffer, format="JPEG")
+    save_image(img_tensor, buffer, format="JPEG")  # match format
     buffer.seek(0)
-
-    # Encode as base64
-    img_base64 = base64.b64encode(buffer.read()).decode("utf-8")
-    return img_base64
+    return base64.b64encode(buffer.read()).decode("utf-8")

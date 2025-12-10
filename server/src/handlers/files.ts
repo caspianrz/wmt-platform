@@ -44,7 +44,7 @@ export const fileListHandler = async (req: Request, res: Response) => {
   const req2 = req as Request & AuthRequest;
   const userId: string = req2.userid;
 
-  const files = await FileModel.find({ userId }, { _id: 0, __v: 0 });
+  const files = await FileModel.find({ userId }, { name: 1, type: 1, _id: 0 });
 
   return res.status(200).json(files);
 };

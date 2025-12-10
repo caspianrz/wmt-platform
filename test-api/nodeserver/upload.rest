@@ -1,0 +1,25 @@
+@baseUrl = http://0.0.0.0:10000/api
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MzY3NDE0LCJleHAiOjE3NjUzNzQ2MTR9.2Seiev4NsPKueTBUsyhTdVMjIbApy_CZQuU806x38Bk
+
+POST {{baseUrl}}/upload
+Content-Type: multipart/form-data
+Authorization: {{token}}
+# test this with other applications
+
+###
+GET {{baseUrl}}/upload
+Authorization: {{token}}
+
+###
+GET {{baseUrl}}/upload/b13bc38c-a8d6-44cb-84fb-a9dda7f9e6d5
+Authorization: {{token}}
+
+###
+PUT {{baseUrl}}/upload/df6356b1-0305-4b0d-afe8-72d1c3d6bbd9
+Authorization: {{token}}
+Content-Type: multipart/form-data
+# test this with other applications
+
+###
+DELETE {{baseUrl}}/upload/f20645bf-a615-4d5c-91c0-edc26a543861
+Authorization: {{token}}

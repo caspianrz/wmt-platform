@@ -1,0 +1,7 @@
+@baseUrl = http://0.0.0.0:10000/api
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MzY3NDE0LCJleHAiOjE3NjUzNzQ2MTR9.2Seiev4NsPKueTBUsyhTdVMjIbApy_CZQuU806x38Bk
+
+GET {{baseUrl}}/strategy
+
+###
+GET {{baseUrl}}/strategy/Sharif-WM

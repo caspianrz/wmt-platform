@@ -1,0 +1,17 @@
+@baseUrl = http://0.0.0.0:10000/api
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTM1NzI4Y2ZjMTRkMDYzMDlmMjAwMjUiLCJ1c2VyIjoiYWxpIiwiaWF0IjoxNzY1MzY3NDE0LCJleHAiOjE3NjUzNzQ2MTR9.2Seiev4NsPKueTBUsyhTdVMjIbApy_CZQuU806x38Bk
+
+GET {{baseUrl}}/project
+Authorization: {{token}}
+
+###
+GET {{baseUrl}}/project/info/69395ffb3982859389ae908d
+Authorization: {{token}}
+
+###
+GET {{baseUrl}}/project/file/69395ffb3982859389ae908d/b13bc38c-a8d6-44cb-84fb-a9dda7f9e6d5_embed_with_Sharif-WM.jpg
+Authorization: {{token}}
+
+###
+DELETE {{baseUrl}}/project/69395c1990c46de7b252970a
+Authorization: {{token}}

@@ -2,9 +2,16 @@ import mongoose, { mongo } from "mongoose";
 
 const projectSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
+    path: {
+      type: String,
+      required: true,
+    },
     originalImage: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Files",
+      type: String,
       required: true,
     },
     stack: {
